@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="GoBus Sri Lanka - book comfortable intercity bus journeys online.">
+    <title>GoBus | Travel made easy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="#home" aria-label="GoBus home"><span class="brand-mark">G</span><span>Go<span>Bus</span></span></a>
+        <nav class="main-nav" aria-label="Main navigation">
+            <a class="active" href="#home">Book a ticket</a>
+            <a href="#offers">Offers</a>
+            <a href="#how-it-works">How it works</a>
+            <a href="#support">Support</a>
+        </nav>
+        <div class="header-actions"><button class="language-btn" type="button">EN <i data-lucide="chevron-down"></i></button><button class="login-btn" type="button"><i data-lucide="user-round"></i> Log in</button></div>
+        <button class="menu-btn" type="button" aria-label="Open menu"><i data-lucide="menu"></i></button>
+    </header>
+
+    <main id="home">
+        <section class="hero">
+            <div class="hero-copy">
+                <p class="eyebrow"><span class="eyebrow-dot"></span> Sri Lanka's smarter bus booking platform</p>
+                <h1>Go further.<br><em>Feel at home.</em></h1>
+                <p class="hero-text">Find your next journey in seconds, choose your exact seat, and travel with confidence.</p>
+            </div>
+            <div class="search-card" id="search-card">
+                <div class="trip-tabs" role="tablist" aria-label="Trip type"><button class="trip-tab active" data-trip="one-way" type="button">One way</button><button class="trip-tab" data-trip="round-trip" type="button">Round trip</button></div>
+                <form id="search-form">
+                    <div class="search-fields">
+                        <label class="field location-field"><span>From</span><div><i data-lucide="map-pin"></i><select id="from-city"><option>Colombo</option><option>Kandy</option><option>Jaffna</option><option>Galle</option><option>Badulla</option></select></div></label>
+                        <button class="swap-btn" id="swap-cities" type="button" aria-label="Swap cities"><i data-lucide="arrow-left-right"></i></button>
+                        <label class="field location-field"><span>To</span><div><i data-lucide="map-pin"></i><select id="to-city"><option>Kandy</option><option>Colombo</option><option>Jaffna</option><option>Galle</option><option>Badulla</option></select></div></label>
+                        <label class="field"><span>Travel date</span><div><i data-lucide="calendar-days"></i><input id="travel-date" type="date" required></div></label>
+                        <label class="field passenger-field"><span>Passengers</span><div><i data-lucide="users"></i><select id="passengers"><option value="1">1 passenger</option><option value="2">2 passengers</option><option value="3">3 passengers</option><option value="4">4 passengers</option></select></div></label>
+                    </div>
+                    <button class="search-btn" type="submit"><span>Search buses</span><i data-lucide="arrow-up-right"></i></button>
+                </form>
+                <p class="secure-note"><i data-lucide="shield-check"></i> Secure booking · Instant e-ticket · Live seat availability</p>
+            </div>
+            <div class="hero-art"><span class="art-label">DISCOVER<br>THE ISLAND</span><span class="art-route">COLOMBO <b>→</b> KANDY</span></div>
+        </section>
+
+        <section class="results-section" id="results" hidden>
+            <div class="section-heading compact"><div><p class="eyebrow">Available journeys</p><h2>Choose your ride</h2></div><button class="text-btn" id="edit-search" type="button">Edit search <i data-lucide="pencil"></i></button></div>
+            <div class="results-meta"><span id="results-route">Colombo to Kandy</span><span id="results-date">Today</span><span>12 buses found</span></div>
+            <div class="journey-list">
+                <article class="journey-card"><div class="operator-badge teal">GB</div><div class="journey-main"><div><h3>GoBus Express <span class="rating"><i data-lucide="star"></i> 4.8</span></h3><p>Luxury AC · Wi-Fi · USB charging</p></div><div class="journey-times"><strong>06:30</strong><span>4h 15m</span><strong>10:45</strong></div></div><div class="journey-price"><span>from</span><strong>Rs. 1,850</strong><button class="choose-btn" data-journey="GoBus Express" type="button">Choose seats</button></div></article>
+                <article class="journey-card"><div class="operator-badge coral">SL</div><div class="journey-main"><div><h3>Southern Lines <span class="rating"><i data-lucide="star"></i> 4.6</span></h3><p>Super luxury · Reclining seats</p></div><div class="journey-times"><strong>08:00</strong><span>4h 35m</span><strong>12:35</strong></div></div><div class="journey-price"><span>from</span><strong>Rs. 1,550</strong><button class="choose-btn" data-journey="Southern Lines" type="button">Choose seats</button></div></article>
+            </div>
+        </section>
+
+        <section class="offers section-wrap" id="offers"><div class="section-heading"><div><p class="eyebrow">Go somewhere new</p><h2>Offers for your next trip</h2></div><a class="text-btn" href="#offers">View all offers <i data-lucide="arrow-up-right"></i></a></div><div class="offer-grid"><article class="offer-card offer-one"><div><span class="offer-tag">LIMITED TIME</span><h3>Weekend escape<br>to Ella</h3><p>Save up to 20% on selected routes</p></div><span class="offer-code">ELLA20</span></article><article class="offer-card offer-two"><div><span class="offer-tag">GO FURTHER</span><h3>Colombo to<br>Jaffna</h3><p>Comfort all the way north</p></div><span class="offer-arrow"><i data-lucide="arrow-up-right"></i></span></article><article class="offer-card offer-three"><div><span class="offer-tag">NEW ON GOBUS</span><h3>Late night<br>connections</h3><p>Arrive fresh for less</p></div><span class="offer-arrow"><i data-lucide="arrow-up-right"></i></span></article></div></section>
+
+        <section class="why-section"><div class="section-wrap why-grid"><div class="why-intro"><p class="eyebrow">Travel, reimagined</p><h2>Everything you need for a smoother journey.</h2><p>From your first search to the moment you arrive, GoBus keeps the details simple and the journey yours.</p><a class="outline-btn" href="#how-it-works">See how it works <i data-lucide="arrow-up-right"></i></a></div><div class="benefit-list"><article><span class="benefit-icon"><i data-lucide="armchair"></i></span><div><h3>Your seat, your choice</h3><p>See live availability and pick the seat that feels right.</p></div></article><article><span class="benefit-icon"><i data-lucide="smartphone"></i></span><div><h3>Your ticket, always with you</h3><p>Instant e-tickets sent straight to your phone and inbox.</p></div></article><article><span class="benefit-icon"><i data-lucide="route"></i></span><div><h3>Know before you go</h3><p>Reliable times, clear stops, and helpful trip updates.</p></div></article></div></div></section>
+
+        <section class="popular section-wrap"><div class="section-heading"><div><p class="eyebrow">A little inspiration</p><h2>Popular routes</h2></div><a class="text-btn" href="#search-card">Explore all routes <i data-lucide="arrow-up-right"></i></a></div><div class="route-grid"><button class="route-card" data-from="Colombo" data-to="Kandy" type="button"><span>Colombo</span><i data-lucide="arrow-right"></i><strong>Kandy</strong><small>From Rs. 1,550</small></button><button class="route-card" data-from="Colombo" data-to="Jaffna" type="button"><span>Colombo</span><i data-lucide="arrow-right"></i><strong>Jaffna</strong><small>From Rs. 2,450</small></button><button class="route-card" data-from="Kandy" data-to="Badulla" type="button"><span>Kandy</span><i data-lucide="arrow-right"></i><strong>Badulla</strong><small>From Rs. 1,200</small></button><button class="route-card" data-from="Colombo" data-to="Galle" type="button"><span>Colombo</span><i data-lucide="arrow-right"></i><strong>Galle</strong><small>From Rs. 950</small></button></div></section>
+
+        <section class="steps-section" id="how-it-works"><div class="section-wrap"><div class="section-heading"><div><p class="eyebrow">Simple by design</p><h2>From search to seat in four steps.</h2></div></div><div class="steps-grid"><article><span>01</span><i data-lucide="search"></i><h3>Search</h3><p>Tell us where you are going and when.</p></article><article><span>02</span><i data-lucide="armchair"></i><h3>Choose</h3><p>Compare buses and pick your favourite seat.</p></article><article><span>03</span><i data-lucide="credit-card"></i><h3>Pay</h3><p>Complete your booking securely online.</p></article><article><span>04</span><i data-lucide="ticket-check"></i><h3>Go</h3><p>Show your e-ticket and enjoy the ride.</p></article></div></div></section>
+    </main>
+
+    <footer id="support"><div class="footer-top section-wrap"><a class="brand footer-brand" href="#home"><span class="brand-mark">G</span><span>Go<span>Bus</span></span></a><p>More than a ticket.<br>A better way to move.</p><div class="footer-links"><a href="#offers">Offers</a><a href="#how-it-works">How it works</a><a href="#support">Help centre</a><a href="#support">Contact us</a></div><div class="social-links"><a href="#support" aria-label="Instagram"><i data-lucide="instagram"></i></a><a href="#support" aria-label="Facebook"><i data-lucide="facebook"></i></a></div></div><div class="footer-bottom section-wrap"><span>© 2026 GoBus Sri Lanka</span><span>Secure payments · Built for every journey</span><span>Privacy · Terms</span></div></footer>
+
+    <div class="modal-backdrop" id="seat-modal" hidden><div class="seat-modal" role="dialog" aria-modal="true" aria-labelledby="seat-title"><button class="close-modal" id="close-modal" type="button" aria-label="Close"><i data-lucide="x"></i></button><p class="eyebrow">Select your seat</p><h2 id="seat-title">GoBus Express</h2><p class="modal-subtitle">Colombo → Kandy · 06:30 - 10:45</p><div class="seat-layout"><div class="bus-front">DRIVER</div><div class="seats" id="seat-grid"></div><div class="seat-legend"><span><b class="seat available"></b> Available</span><span><b class="seat selected"></b> Selected</span><span><b class="seat occupied"></b> Occupied</span></div></div><div class="selected-summary"><div><span>Selected seat</span><strong id="selected-seat-label">Choose a seat</strong></div><button class="continue-btn" id="continue-btn" type="button" disabled>Continue <i data-lucide="arrow-right"></i></button></div></div></div>
+    <script src="js/app.js"></script>
+</body>
+</html>
