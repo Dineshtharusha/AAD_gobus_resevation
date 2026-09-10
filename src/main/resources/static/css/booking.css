@@ -1,0 +1,263 @@
+/* ==========================================================================
+   GoBus - Booking Confirmation CSS - Vibrant Modern Edition
+   ========================================================================== */
+
+:root {
+    --primary: #4f46e5;
+    --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #3730a3 100%);
+    
+    --coral: #ff5757;
+    --coral-gradient: linear-gradient(135deg, #ff6b6b 0%, #ff5757 50%, #ff8e53 100%);
+    
+    --mint: #10b981;
+    --mint-gradient: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    
+    --bg-dark: #0f172a;
+    --bg-light: #f8fafc;
+    --text-dark: #0f172a;
+    --text-light: #64748b;
+    --border: #e2e8f0;
+    --radius: 16px;
+    --shadow-lg: 0 20px 45px -10px rgba(15, 23, 42, 0.2);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #0f172a 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 16px;
+    color: var(--text-dark);
+}
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: white;
+    text-decoration: none;
+    margin-bottom: 30px;
+}
+
+.brand-mark {
+    width: 36px;
+    height: 36px;
+    background: var(--coral-gradient);
+    color: #fff;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 15px rgba(255, 87, 87, 0.4);
+}
+
+.brand span:last-child span {
+    background: var(--coral-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 560px;
+    padding: 38px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(16px);
+    animation: slideUp 0.4s ease-out;
+}
+
+.card h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 22px;
+    color: var(--text-dark);
+}
+
+.step-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+}
+
+.step {
+    flex: 1;
+    height: 5px;
+    border-radius: 99px;
+    background: #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.step.done {
+    background: var(--coral-gradient);
+    box-shadow: 0 2px 8px rgba(255, 87, 87, 0.4);
+}
+
+.summary-box {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #edf2f7;
+    font-size: 0.95rem;
+}
+
+.summary-row:last-of-type {
+    border: none;
+    padding-top: 14px;
+    margin-top: 4px;
+    border-top: 2px dashed #cbd5e1;
+}
+
+.summary-row span:first-child {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.summary-row span:last-child {
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.form-group {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    outline: none;
+    background: #ffffff;
+    transition: all 0.25s ease;
+}
+
+.form-group input:focus, .form-group select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+    transition: all 0.25s ease;
+}
+
+.btn-confirm {
+    background: var(--coral-gradient);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(255, 87, 87, 0.4);
+}
+
+.btn-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 87, 87, 0.55);
+}
+
+.btn-confirm:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-back {
+    background: #f1f5f9;
+    color: #475569;
+    margin-top: 10px;
+    border: 1px solid var(--border);
+}
+
+.btn-back:hover {
+    background: #e2e8f0;
+}
+
+.alert {
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-top: 16px;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.alert-success {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.alert-error {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+h3.sub {
+    font-size: 0.85rem;
+    color: var(--primary);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 22px 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}

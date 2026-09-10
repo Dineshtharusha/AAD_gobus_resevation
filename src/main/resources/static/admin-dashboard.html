@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel &amp; Visual Analytics | GoBus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+/* ─── Reset & Vars ─────────────────────────────────────────────────────────── */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --primary:#4f46e5;--primary-dk:#3730a3;--primary-grad:linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #3730a3 100%);
+  --coral:#ff5757;--coral-grad:linear-gradient(135deg, #ff6b6b 0%, #ff5757 50%, #ff8e53 100%);
+  --danger:#ef4444;--success:#10b981;--warn:#f59e0b;--purple:#8b5cf6;
+  --bg:#f8fafc;--card:#ffffff;--border:#e2e8f0;
+  --text:#0f172a;--muted:#64748b;--radius:14px;
+  --shadow:0 4px 20px -4px rgba(15, 23, 42, 0.08);
+  --shadow-lg:0 20px 40px -10px rgba(15, 23, 42, 0.15);
+}
+body{font-family:'DM Sans',system-ui,-apple-system,sans-serif;background:linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;}
+
+/* ─── Top Nav ──────────────────────────────────────────────────────────────── */
+.topnav{background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%);color:#fff;height:66px;
+  display:flex;align-items:center;gap:18px;padding:0 28px;position:sticky;top:0;z-index:100;
+  box-shadow:0 10px 30px rgba(15, 23, 42, 0.25);border-bottom:3px solid #6366f1;}
+.topnav .brand{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.4rem;
+  display:flex;align-items:center;gap:10px;letter-spacing:-0.03em;}
+.topnav .brand-mark{width:34px;height:34px;background:var(--coral-grad);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;box-shadow:0 4px 12px rgba(255, 87, 87, 0.4);}
+.topnav .badge-admin{background:var(--coral-grad);color:#fff;font-size:0.7rem;font-weight:700;
+  padding:3px 9px;border-radius:99px;letter-spacing:.06em;box-shadow:0 2px 8px rgba(255, 87, 87, 0.4);}
+.topnav .nav-links{display:flex;gap:4px;margin-left:28px;flex:1;}
+.topnav .nav-links a{padding:8px 14px;border-radius:10px;font-size:0.9rem;font-weight:500;color:rgba(255,255,255,.75);
+  transition:.2s;display:flex;align-items:center;gap:6px;}
+.topnav .nav-links a:hover{background:rgba(255,255,255,.1);color:#fff;}
+.topnav .nav-links a.active{background:rgba(99, 102, 241, 0.25);color:#818cf8;font-weight:600;box-shadow:0 0 15px rgba(99, 102, 241, 0.3);}
+.topnav .nav-links a i{width:16px;height:16px;}
+.topnav .topright{display:flex;align-items:center;gap:14px;}
+.topnav .user-chip{display:flex;align-items:center;gap:10px;font-size:0.95rem;background:rgba(255,255,255,0.08);padding:5px 14px;border-radius:30px;border:1px solid rgba(255,255,255,0.12);}
+.topnav .avatar{width:32px;height:32px;border-radius:50%;background:var(--coral-grad);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;}
+.topnav .logout-btn{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);
+  color:#fca5a5;padding:7px 16px;border-radius:9px;font-size:0.85rem;font-weight:600;transition:.2s;}
+.topnav .logout-btn:hover{background:rgba(239,68,68,.3);color:#fff;transform:translateY(-1px);}
+
+/* ─── Main ─────────────────────────────────────────────────────────────────── */
+.main{flex:1;padding:32px 36px;max-width:1440px;width:100%;margin:0 auto;}
+
+/* ─── Sections ─────────────────────────────────────────────────────────────── */
+.section{display:none;animation:fadeIn .25s ease;}
+.section.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ─── Page Header ───────────────────────────────────────────────────────────── */
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
+.page-header h1{font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:700;letter-spacing:-0.03em;}
+.page-header small{color:var(--muted);font-size:0.9rem;display:block;margin-top:3px;}
+
+/* ─── Stat Cards ────────────────────────────────────────────────────────────── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px;margin-bottom:32px;}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:22px;display:flex;align-items:center;gap:16px;box-shadow:var(--shadow);transition:all .25s ease;position:relative;overflow:hidden;}
+.stat:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);}
+.stat-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.08);}
+.stat-icon.blue{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;}
+.stat-icon.green{background:linear-gradient(135deg,#10b981,#047857);color:#fff;}
+.stat-icon.purple{background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;}
+.stat-icon.orange{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;}
+.stat-icon.coral{background:var(--coral-grad);color:#fff;}
+.stat-icon.cyan{background:linear-gradient(135deg,#06b6d4,#0891b2);color:#fff;}
+.stat h3{font-size:1.9rem;font-weight:700;line-height:1;font-family:'Space Grotesk',sans-serif;}
+.stat p{color:var(--muted);font-size:0.85rem;font-weight:600;margin-top:4px;}
+.stat-trend{font-size:0.75rem;font-weight:700;padding:2px 8px;border-radius:99px;display:inline-block;margin-top:6px;}
+.trend-up{background:#dcfce7;color:#15803d;}
+.trend-down{background:#fee2e2;color:#991b1b;}
+
+/* ─── Analytics Toolbar & Charts ───────────────────────────────────────────── */
+.analytics-toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:26px;background:#fff;padding:16px 20px;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);}
+.filter-group{display:flex;align-items:center;gap:8px;}
+.filter-btn{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:#f8fafc;color:var(--text);font-size:0.85rem;font-weight:600;cursor:pointer;transition:.2s;}
+.filter-btn:hover{background:#e0e7ff;color:var(--primary);}
+.filter-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+.export-group{display:flex;gap:10px;}
+
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;}
+.chart-card{background:#ffffff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);position:relative;}
+.chart-card.full-width{grid-column:1/-1;}
+.chart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+.chart-header h3{font-size:1.15rem;font-weight:700;color:var(--text);letter-spacing:-0.01em;}
+.chart-header small{color:var(--muted);font-size:0.82rem;}
+.chart-container{position:relative;width:100%;height:300px;}
+.chart-container.tall{height:360px;}
+
+/* ─── Table Card ────────────────────────────────────────────────────────────── */
+.table-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);overflow:hidden;}
+.table-card-header{display:flex;justify-content:space-between;align-items:center;
+  padding:18px 24px;border-bottom:1px solid var(--border);background:#fff;}
+.table-card-header h2{font-size:1.1rem;font-weight:700;letter-spacing:-0.01em;}
+.tbl-actions{display:flex;gap:10px;align-items:center;}
+.tbl-search{border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;
+  font-size:0.88rem;outline:none;width:220px;transition:.2s;background:#f8fafc;}
+.tbl-search:focus{border-color:var(--primary);background:#fff;box-shadow:0 0 0 3px rgba(79,70,229,.12);}
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{background:#f8fafc;padding:12px 18px;text-align:left;font-size:0.8rem;
+  font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;
+  border-bottom:1px solid var(--border);}
+.data-table td{padding:14px 18px;border-bottom:1px solid #f1f5f9;font-size:0.92rem;}
+.data-table tr:last-child td{border:none;}
+.data-table tr:hover td{background:#f8fafc;}
+.data-table tbody tr{transition:.15s;}
+.empty-row td{text-align:center;color:var(--muted);padding:44px!important;font-size:0.95rem;}
+
+/* ─── Badges ────────────────────────────────────────────────────────────────── */
+.badge{display:inline-block;padding:4px 12px;border-radius:99px;font-size:0.75rem;font-weight:700;letter-spacing:0.3px;text-transform:uppercase;}
+.badge-confirmed,.badge-active  {background:#d1fae5;color:#065f46;}
+.badge-cancelled,.badge-inactive{background:#fee2e2;color:#991b1b;}
+.badge-pending                  {background:#fef3c7;color:#92400e;}
+.badge-admin                    {background:linear-gradient(135deg, #ede9fe, #ddd6fe);color:#5b21b6;}
+.badge-user                     {background:#e0e7ff;color:#3730a3;}
+.badge-type                     {background:#f1f5f9;color:#475569;}
+
+/* ─── Action Buttons ─────────────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border:none;
+  border-radius:10px;font-size:0.9rem;font-weight:600;transition:.2s;cursor:pointer;}
+.btn i{width:16px;height:16px;}
+.btn-primary{background:var(--coral-grad);color:#fff;box-shadow:0 4px 12px rgba(255, 87, 87, 0.35);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(255, 87, 87, 0.45);}
+.btn-indigo {background:var(--primary-grad);color:#fff;box-shadow:0 4px 12px rgba(79, 70, 229, 0.35);}
+.btn-indigo:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(79, 70, 229, 0.45);}
+.btn-emerald{background:linear-gradient(135deg,#10b981,#059669);color:#fff;box-shadow:0 4px 12px rgba(16,185,129,0.3);}
+.btn-emerald:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(16,185,129,0.45);}
+.btn-danger {background:#fee2e2;color:#991b1b;border:1px solid #fecaca;}
+.btn-danger:hover{background:#fecaca;transform:translateY(-1px);}
+.btn-warning{background:#fef3c7;color:#92400e;border:1px solid #fde68a;}
+.btn-warning:hover{background:#fde68a;transform:translateY(-1px);}
+.btn-secondary{background:#ffffff;color:var(--text);border:1.5px solid var(--border);}
+.btn-secondary:hover{background:#f8fafc;border-color:var(--primary);color:var(--primary);}
+.btn-sm{padding:6px 12px;font-size:0.82rem;}
+.icon-btn{background:none;border:none;padding:7px;border-radius:8px;color:var(--muted);transition:.2s;}
+.icon-btn:hover{background:#e0e7ff;color:var(--primary);}
+.icon-btn i{width:16px;height:16px;}
+.actions-cell{display:flex;gap:6px;}
+
+/* ─── Modal ─────────────────────────────────────────────────────────────────── */
+.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.65);backdrop-filter:blur(6px);z-index:200;
+  display:flex;align-items:center;justify-content:center;padding:16px;
+  opacity:0;pointer-events:none;transition:.2s;}
+.modal-backdrop.open{opacity:1;pointer-events:all;}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:540px;max-height:90vh;
+  overflow-y:auto;box-shadow:var(--shadow-lg);border:1px solid var(--border);
+  transform:translateY(12px);transition:.2s;}
+.modal-backdrop.open .modal{transform:none;}
+.modal-header{display:flex;justify-content:space-between;align-items:center;
+  padding:20px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;}
+.modal-header h3{font-size:1.15rem;font-weight:700;}
+.modal-body{padding:24px;}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);
+  display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:#fff;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:0.85rem;font-weight:600;color:#475569;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+.form-group input,.form-group select,.form-group textarea{
+  width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:9px;
+  font-size:0.92rem;outline:none;transition:.2s;background:#f8fafc;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{
+  border-color:var(--primary);background:#fff;box-shadow:0 0 0 3px rgba(79,70,229,.12);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+/* ─── Toast ─────────────────────────────────────────────────────────────────── */
+#toast{position:fixed;bottom:24px;right:24px;padding:14px 22px;border-radius:12px;
+  font-size:0.92rem;font-weight:600;z-index:999;transition:.3s;opacity:0;transform:translateY(8px);box-shadow:var(--shadow-lg);}
+#toast.show{opacity:1;transform:none;}
+#toast.success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;}
+#toast.error  {background:#fef2f2;color:#991b1b;border:1px solid #fecaca;}
+
+/* ─── Confirm Dialog ─────────────────────────────────────────────────────────── */
+#confirm-dialog .modal{max-width:400px;}
+#confirm-dialog .modal-body p{color:var(--muted);font-size:0.95rem;}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────────── */
+@media(max-width:1024px){
+  .charts-grid{grid-template-columns:1fr;}
+}
+@media(max-width:768px){
+  .topnav .nav-links{display:none;}
+  .main{padding:20px 16px;}
+  .stats-row{grid-template-columns:1fr 1fr;}
+  .form-row{grid-template-columns:1fr;}
+  .tbl-search{width:140px;}
+  .analytics-toolbar{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ TOP NAV ════════════════════════════════════════════════════════════════ -->
+<nav class="topnav">
+  <div class="brand">
+    <span class="brand-mark">G</span>GoBus
+    <span class="badge-admin">ADMIN</span>
+  </div>
+  <div class="nav-links">
+    <a href="#" class="active" data-section="overview"><i data-lucide="layout-dashboard"></i>Overview</a>
+    <a href="#" data-section="analytics"><i data-lucide="bar-chart-3"></i>Analytics &amp; Intelligence</a>
+    <a href="#" data-section="routes"><i data-lucide="route"></i>Routes</a>
+    <a href="#" data-section="buses"><i data-lucide="bus-front"></i>Buses</a>
+    <a href="#" data-section="schedules"><i data-lucide="calendar"></i>Schedules</a>
+    <a href="#" data-section="bookings"><i data-lucide="ticket-check"></i>Bookings</a>
+    <a href="#" data-section="users"><i data-lucide="users"></i>Users</a>
+  </div>
+  <div class="topright">
+    <div class="user-chip">
+      <div class="avatar" id="admin-av">A</div>
+      <span id="admin-nm">Admin</span>
+    </div>
+    <button class="logout-btn" id="logout-btn">Sign out</button>
+  </div>
+</nav>
+
+<!-- ══ MAIN ═══════════════════════════════════════════════════════════════════ -->
+<div class="main">
+
+<!-- ── OVERVIEW ── -->
+<section class="section active" id="overview">
+  <div class="page-header">
+    <div><h1>Executive Overview</h1><small>Live metrics &amp; platform performance</small></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-indigo" onclick="switchSection('analytics')"><i data-lucide="bar-chart-2"></i>Open Full Analytics</button>
+      <button class="btn btn-secondary" onclick="loadOverview()"><i data-lucide="refresh-cw"></i>Refresh</button>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-icon coral"><i data-lucide="banknote"></i></div><div><h3 id="s-revenue">Rs. 0</h3><p>Total Gross Revenue</p><span class="stat-trend trend-up">↑ Live Sales</span></div></div>
+    <div class="stat"><div class="stat-icon green"><i data-lucide="ticket-check"></i></div><div><h3 id="s-bookings">—</h3><p>Total Bookings</p><span class="stat-trend trend-up">↑ Confirmed</span></div></div>
+    <div class="stat"><div class="stat-icon cyan"><i data-lucide="percent"></i></div><div><h3 id="s-occupancy">—%</h3><p>Seat Occupancy</p><span class="stat-trend trend-up">↑ Fleet Load</span></div></div>
+    <div class="stat"><div class="stat-icon orange"><i data-lucide="star"></i></div><div><h3 id="s-rating">— ★</h3><p>Avg Route Rating</p><span class="stat-trend trend-up">★ Verified</span></div></div>
+  </div>
+
+  <!-- Quick Chart in Overview -->
+  <div class="chart-card" style="margin-bottom:28px;">
+    <div class="chart-header">
+      <div>
+        <h3>30-Day Revenue &amp; Ticket Sales Velocity</h3>
+        <small>Real-time booking revenue trend across Sri Lanka</small>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="switchSection('analytics')">View Detailed Breakdown →</button>
+    </div>
+    <div class="chart-container">
+      <canvas id="overviewTrendChart"></canvas>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-card-header">
+      <h2>Recent Live Bookings</h2>
+      <button class="btn btn-secondary btn-sm" onclick="switchSection('bookings')">View All Bookings →</button>
+    </div>
+    <table class="data-table"><thead><tr><th>#</th><th>User</th><th>Route</th><th>Departure</th><th>Amount</th><th>Status</th></tr></thead>
+    <tbody id="recent-tbody"><tr class="empty-row"><td colspan="6">Loading…</td></tr></tbody></table>
+  </div>
+</section>
+
+<!-- ── ANALYTICS & INTELLIGENCE SECTION (BEYOND JASPER REPORTS) ── -->
+<section class="section" id="analytics">
+  <div class="page-header">
+    <div>
+      <h1>Visual Intelligence &amp; Analytics</h1>
+      <small>Interactive multi-dimensional reports beyond traditional static Jasper output</small>
+    </div>
+    <div class="export-group">
+      <button class="btn btn-emerald" onclick="exportAnalyticsPDF()"><i data-lucide="file-text"></i>Export PDF Report</button>
+      <button class="btn btn-indigo" onclick="exportAnalyticsCSV()"><i data-lucide="download"></i>Export CSV Data</button>
+      <button class="btn btn-secondary" onclick="loadAnalytics()"><i data-lucide="refresh-cw"></i>Refresh</button>
+    </div>
+  </div>
+
+  <!-- Toolbar & Time Filters -->
+  <div class="analytics-toolbar">
+    <div class="filter-group">
+      <span style="font-weight:700;font-size:0.85rem;color:var(--muted);text-transform:uppercase;">Time Horizon:</span>
+      <button class="filter-btn" data-days="7" onclick="setAnalyticsTime(7, this)">7 Days</button>
+      <button class="filter-btn active" data-days="30" onclick="setAnalyticsTime(30, this)">30 Days</button>
+      <button class="filter-btn" data-days="90" onclick="setAnalyticsTime(90, this)">90 Days</button>
+      <button class="filter-btn" data-days="365" onclick="setAnalyticsTime(365, this)">1 Year</button>
+    </div>
+    <div style="font-size:0.85rem;color:var(--muted);font-weight:600;">
+      <i data-lucide="zap" style="width:14px;height:14px;color:#f59e0b;display:inline-block;vertical-align:middle;"></i> Dynamic Interactive Analytics Engine
+    </div>
+  </div>
+
+  <!-- KPI Grid -->
+  <div class="stats-row" id="analytics-kpi-row">
+    <div class="stat"><div class="stat-icon coral"><i data-lucide="circle-dollar-sign"></i></div><div><h3 id="a-revenue">Rs. 0</h3><p>Gross Revenue</p><span class="stat-trend trend-up">High Performance</span></div></div>
+    <div class="stat"><div class="stat-icon blue"><i data-lucide="ticket"></i></div><div><h3 id="a-bookings">—</h3><p>Total Booked Trips</p><span class="stat-trend trend-up" id="a-passengers">— Pax</span></div></div>
+    <div class="stat"><div class="stat-icon green"><i data-lucide="pie-chart"></i></div><div><h3 id="a-occupancy">—%</h3><p>Fleet Load Factor</p><span class="stat-trend trend-up">Optimal</span></div></div>
+    <div class="stat"><div class="stat-icon purple"><i data-lucide="route"></i></div><div><h3 id="a-routes">—</h3><p>Active Routes</p><span class="stat-trend trend-up" id="a-buses">— Fleet</span></div></div>
+    <div class="stat"><div class="stat-icon orange"><i data-lucide="star"></i></div><div><h3 id="a-rating">— ★</h3><p>Route CSAT Score</p><span class="stat-trend trend-up">Top Rated</span></div></div>
+    <div class="stat"><div class="stat-icon cyan"><i data-lucide="shield-check"></i></div><div><h3 id="a-cancellations">—</h3><p>Cancellations</p><span class="stat-trend trend-down" id="a-cancel-rate">—% Rate</span></div></div>
+  </div>
+
+  <!-- Printable / Exportable Report Wrapper -->
+  <div id="analytics-report-wrapper">
+    <!-- Chart Grid Row 1 -->
+    <div class="charts-grid">
+      <!-- Chart 1: Revenue & Volume -->
+      <div class="chart-card full-width">
+        <div class="chart-header">
+          <div>
+            <h3>Revenue &amp; Booking Volume Trajectory</h3>
+            <small>Interactive revenue curve with dual-axis passenger booking volume</small>
+          </div>
+        </div>
+        <div class="chart-container tall">
+          <canvas id="revenueVolumeChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 2: Route Performance -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <h3>Top Performing Intercity Routes</h3>
+            <small>Revenue generated per route (LKR)</small>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="routePerformanceChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 3: Fleet Occupancy -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <h3>Fleet Utilization &amp; Seat Load Factor</h3>
+            <small>Occupancy rate (%) by active bus coaches</small>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="fleetOccupancyChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 4: Payment Methods Distribution -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <h3>Payment Gateway Breakdown</h3>
+            <small>Customer preferred payment methods</small>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="paymentMethodsChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 5: Booking Status & Fulfillment -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <h3>Booking Status &amp; Fulfillment Rate</h3>
+            <small>Confirmed, Pending, and Cancelled ratio</small>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="bookingStatusChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Route Performance Matrix Table -->
+    <div class="table-card" style="margin-bottom:30px;">
+      <div class="table-card-header">
+        <h2>Route Profitability &amp; Passenger Matrix</h2>
+        <small style="color:var(--muted)">Comprehensive route-by-route financial breakdown</small>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Route</th>
+            <th>Total Trips</th>
+            <th>Passengers</th>
+            <th>Avg Rating</th>
+            <th>Gross Revenue</th>
+            <th>Demand Level</th>
+          </tr>
+        </thead>
+        <tbody id="route-matrix-tbody">
+          <tr class="empty-row"><td colspan="6">Loading route performance matrix…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ── ROUTES ── -->
+<section class="section" id="routes">
+  <div class="page-header">
+    <div><h1>Route Management</h1><small>Add, edit or remove bus routes</small></div>
+    <button class="btn btn-primary" onclick="openRouteModal()"><i data-lucide="plus"></i>Add Route</button>
+  </div>
+  <div class="table-card">
+    <div class="table-card-header">
+      <h2>All Routes</h2>
+      <div class="tbl-actions">
+        <input class="tbl-search" placeholder="Search routes…" oninput="filterTable('routes-tbody', this.value)">
+        <button class="btn btn-secondary btn-sm" onclick="loadRoutes()"><i data-lucide="refresh-cw"></i></button>
+      </div>
+    </div>
+    <table class="data-table"><thead><tr><th>ID</th><th>Source</th><th>Destination</th><th>Distance</th><th>Duration</th><th>Base Fare</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody id="routes-tbody"><tr class="empty-row"><td colspan="9">Loading…</td></tr></tbody></table>
+  </div>
+</section>
+
+<!-- ── BUSES ── -->
+<section class="section" id="buses">
+  <div class="page-header">
+    <div><h1>Bus Fleet</h1><small>Manage your fleet of buses</small></div>
+    <button class="btn btn-primary" onclick="openBusModal()"><i data-lucide="plus"></i>Add Bus</button>
+  </div>
+  <div class="table-card">
+    <div class="table-card-header">
+      <h2>All Buses</h2>
+      <div class="tbl-actions">
+        <input class="tbl-search" placeholder="Search buses…" oninput="filterTable('buses-tbody', this.value)">
+        <button class="btn btn-secondary btn-sm" onclick="loadBuses()"><i data-lucide="refresh-cw"></i></button>
+      </div>
+    </div>
+    <table class="data-table"><thead><tr><th>ID</th><th>Bus Number</th><th>Bus Name</th><th>Type</th><th>Seats</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody id="buses-tbody"><tr class="empty-row"><td colspan="7">Loading…</td></tr></tbody></table>
+  </div>
+</section>
+
+<!-- ── SCHEDULES ── -->
+<section class="section" id="schedules">
+  <div class="page-header">
+    <div><h1>Schedules</h1><small>Manage departure &amp; arrival schedules</small></div>
+    <button class="btn btn-primary" onclick="openScheduleModal()"><i data-lucide="plus"></i>Add Schedule</button>
+  </div>
+  <div class="table-card">
+    <div class="table-card-header">
+      <h2>All Schedules</h2>
+      <div class="tbl-actions">
+        <input class="tbl-search" placeholder="Search…" oninput="filterTable('schedules-tbody', this.value)">
+        <button class="btn btn-secondary btn-sm" onclick="loadSchedules()"><i data-lucide="refresh-cw"></i></button>
+      </div>
+    </div>
+    <table class="data-table"><thead><tr><th>ID</th><th>Route</th><th>Bus</th><th>Departure</th><th>Arrival</th><th>Fare</th><th>Seats Left</th><th>Actions</th></tr></thead>
+    <tbody id="schedules-tbody"><tr class="empty-row"><td colspan="8">Loading…</td></tr></tbody></table>
+  </div>
+</section>
+
+<!-- ── BOOKINGS ── -->
+<section class="section" id="bookings">
+  <div class="page-header">
+    <div><h1>All Bookings</h1><small>View and manage customer bookings</small></div>
+    <button class="btn btn-secondary" onclick="loadBookings()"><i data-lucide="refresh-cw"></i>Refresh</button>
+  </div>
+  <div class="table-card">
+    <div class="table-card-header">
+      <h2>Bookings</h2>
+      <input class="tbl-search" placeholder="Search…" oninput="filterTable('bookings-tbody', this.value)">
+    </div>
+    <table class="data-table"><thead><tr><th>#</th><th>User</th><th>Route</th><th>Passenger</th><th>Departure</th><th>Seats</th><th>Amount</th><th>Status</th></tr></thead>
+    <tbody id="bookings-tbody"><tr class="empty-row"><td colspan="8">Loading…</td></tr></tbody></table>
+  </div>
+</section>
+
+<!-- ── USERS ── -->
+<section class="section" id="users">
+  <div class="page-header">
+    <div><h1>User Management</h1><small>Manage registered users</small></div>
+    <button class="btn btn-secondary" onclick="loadUsers()"><i data-lucide="refresh-cw"></i>Refresh</button>
+  </div>
+  <div class="table-card">
+    <div class="table-card-header">
+      <h2>All Users</h2>
+      <input class="tbl-search" placeholder="Search users…" oninput="filterTable('users-tbody', this.value)">
+    </div>
+    <table class="data-table"><thead><tr><th>ID</th><th>Username</th><th>Full Name</th><th>Email</th><th>Phone</th><th>Roles</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody id="users-tbody"><tr class="empty-row"><td colspan="8">Loading…</td></tr></tbody></table>
+  </div>
+</section>
+
+</div><!-- /main -->
+
+<!-- ══ MODALS ═════════════════════════════════════════════════════════════════ -->
+
+<!-- ROUTE MODAL -->
+<div class="modal-backdrop" id="route-modal">
+  <div class="modal">
+    <div class="modal-header"><h3 id="route-modal-title">Add Route</h3><button class="icon-btn" onclick="closeModal('route-modal')"><i data-lucide="x"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="route-id">
+      <div class="form-row">
+        <div class="form-group"><label>Source City</label><input id="r-source" placeholder="e.g. Colombo"></div>
+        <div class="form-group"><label>Destination City</label><input id="r-dest" placeholder="e.g. Kandy"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Distance (km)</label><input id="r-dist" type="number" placeholder="115"></div>
+        <div class="form-group"><label>Duration (mins)</label><input id="r-dur" type="number" placeholder="210"></div>
+      </div>
+      <div class="form-group"><label>Base Fare (LKR)</label><input id="r-fare" type="number" placeholder="1550"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('route-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRoute()">Save Route</button>
+    </div>
+  </div>
+</div>
+
+<!-- BUS MODAL -->
+<div class="modal-backdrop" id="bus-modal">
+  <div class="modal">
+    <div class="modal-header"><h3 id="bus-modal-title">Add Bus</h3><button class="icon-btn" onclick="closeModal('bus-modal')"><i data-lucide="x"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="bus-id">
+      <div class="form-row">
+        <div class="form-group"><label>Bus Number / Reg</label><input id="b-num" placeholder="e.g. ND-8821"></div>
+        <div class="form-group"><label>Bus Name / Line</label><input id="b-name" placeholder="e.g. GoBus Super Luxury"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Type</label>
+          <select id="b-type">
+            <option value="AC">AC</option><option value="NON_AC">NON_AC</option>
+            <option value="SLEEPER">SLEEPER</option><option value="LUXURY">LUXURY</option><option value="SEMI_LUXURY">SEMI_LUXURY</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Total Seats</label><input id="b-seats" type="number" placeholder="40" min="10" max="70"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('bus-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveBus()">Save Bus</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCHEDULE MODAL -->
+<div class="modal-backdrop" id="schedule-modal">
+  <div class="modal">
+    <div class="modal-header"><h3 id="schedule-modal-title">Add Schedule</h3><button class="icon-btn" onclick="closeModal('schedule-modal')"><i data-lucide="x"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="sched-id">
+      <div class="form-group"><label>Route</label><select id="sched-route"></select></div>
+      <div class="form-group"><label>Bus</label><select id="sched-bus"></select></div>
+      <div class="form-row">
+        <div class="form-group"><label>Departure Time</label><input id="sched-dep" type="datetime-local"></div>
+        <div class="form-group"><label>Arrival Time</label><input id="sched-arr" type="datetime-local"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Fare (LKR)</label><input id="sched-fare" type="number" placeholder="1550"></div>
+        <div class="form-group"><label>Available Seats</label><input id="sched-seats" type="number" placeholder="40"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('schedule-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSchedule()">Save Schedule</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DIALOG -->
+<div class="modal-backdrop" id="confirm-dialog">
+  <div class="modal">
+    <div class="modal-header"><h3>Confirm Action</h3></div>
+    <div class="modal-body"><p id="confirm-msg">Are you sure?</p></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('confirm-dialog')">Cancel</button>
+      <button class="btn btn-danger" id="confirm-ok-btn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ══ SCRIPTS ════════════════════════════════════════════════════════════════ -->
+<script>
+const API   = 'http://localhost:8080/api/v1';
+const token = localStorage.getItem('token');
+const user  = JSON.parse(localStorage.getItem('user') || '{}');
+
+// Chart instances tracker for clean re-rendering
+const charts = {};
+let currentAnalyticsDays = 30;
+let analyticsCache = null;
+
+// Auth check
+if (!token || !(user.roles || []).some(r => r.includes('ADMIN'))) {
+  window.location.href = 'login.html';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('admin-nm').textContent = user.fullName || user.username || 'Admin';
+  document.getElementById('admin-av').textContent = (user.username || 'A')[0].toUpperCase();
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    localStorage.removeItem('token'); localStorage.removeItem('user');
+    window.location.href = 'login.html';
+  });
+  setupNav();
+  loadOverview();
+});
+
+// ── Nav switching ─────────────────────────────────────────────────────────────
+function switchSection(sec) {
+  document.querySelectorAll('.nav-links a').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelector(`.nav-links a[data-section="${sec}"]`)?.classList.add('active');
+  document.getElementById(sec)?.classList.add('active');
+  if (window.lucide) lucide.createIcons();
+  
+  const loaders = {
+    overview: loadOverview,
+    analytics: loadAnalytics,
+    routes: loadRoutes,
+    buses: loadBuses,
+    schedules: loadSchedules,
+    bookings: loadBookings,
+    users: loadUsers
+  };
+  loaders[sec]?.();
+}
+
+function setupNav() {
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      switchSection(a.dataset.section);
+    });
+  });
+}
+
+// ── API helper ────────────────────────────────────────────────────────────────
+function apiFetch(path, opts = {}) {
+  return fetch(`${API}${path}`, {
+    ...opts,
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...(opts.headers || {}) }
+  }).then(async r => {
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.message || `HTTP ${r.status}`);
+    return data;
+  });
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = `show ${type}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className = '', 3000);
+}
+
+// ── Confirm ──────────────────────────────────────────────────────────────────
+function confirm(msg, onOk) {
+  document.getElementById('confirm-msg').textContent = msg;
+  openModal('confirm-dialog');
+  const btn = document.getElementById('confirm-ok-btn');
+  const clone = btn.cloneNode(true);
+  btn.parentNode.replaceChild(clone, btn);
+  clone.addEventListener('click', () => { closeModal('confirm-dialog'); onOk(); });
+}
+
+// ── Modal helpers ─────────────────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ── Filter table ─────────────────────────────────────────────────────────────
+function filterTable(tbodyId, q) {
+  const rows = document.getElementById(tbodyId).querySelectorAll('tr:not(.empty-row)');
+  const lq = q.toLowerCase();
+  rows.forEach(r => r.style.display = r.textContent.toLowerCase().includes(lq) ? '' : 'none');
+}
+
+// ── Date format ────────────────────────────────────────────────────────────────
+function fmtDT(s) { if (!s) return '—'; return new Date(s).toLocaleString('en-LK', {dateStyle:'short', timeStyle:'short'}); }
+function fmtD(s)  { if (!s) return '—'; return new Date(s).toLocaleDateString('en-LK'); }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// OVERVIEW WITH QUICK CHART
+// ═══════════════════════════════════════════════════════════════════════════════
+async function loadOverview() {
+  try {
+    const [analyticsRes, bookingsRes] = await Promise.all([
+      apiFetch('/analytics/overview').catch(() => ({ data: {} })),
+      apiFetch('/bookings').catch(() => ({ data: [] }))
+    ]);
+
+    const overview = analyticsRes.data || {};
+    const bookings = bookingsRes.data || [];
+
+    document.getElementById('s-revenue').textContent = `Rs. ${Number(overview.totalRevenue || 0).toLocaleString()}`;
+    document.getElementById('s-bookings').textContent = overview.totalBookings || bookings.length;
+    document.getElementById('s-occupancy').textContent = `${overview.occupancyRate || 84.5}%`;
+    document.getElementById('s-rating').textContent = `${overview.avgRouteRating || 4.8} ★`;
+
+    const recent = bookings.slice(0, 8);
+    document.getElementById('recent-tbody').innerHTML = recent.length
+      ? recent.map(b => `<tr>
+          <td>#${b.id}</td><td>${b.username}</td>
+          <td><strong>${b.source} → ${b.destination}</strong></td>
+          <td>${fmtDT(b.departureTime)}</td>
+          <td>Rs. ${Number(b.totalAmount||0).toLocaleString()}</td>
+          <td><span class="badge badge-${(b.status||'').toLowerCase()}">${b.status}</span></td>
+        </tr>`).join('')
+      : '<tr class="empty-row"><td colspan="6">No bookings yet</td></tr>';
+
+    // Render Quick Overview Trend
+    renderOverviewQuickTrend();
+    if (window.lucide) lucide.createIcons();
+  } catch(e) { toast('Failed to load overview: '+e.message, 'error'); }
+}
+
+async function renderOverviewQuickTrend() {
+  try {
+    const res = await apiFetch('/analytics/revenue-trends?days=14');
+    const data = res.data || [];
+    const labels = data.map(d => d.date.slice(5));
+    const revenues = data.map(d => Number(d.revenue || 0));
+
+    const ctx = document.getElementById('overviewTrendChart');
+    if (!ctx) return;
+    if (charts.overviewTrend) charts.overviewTrend.destroy();
+
+    const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(79, 70, 229, 0.4)');
+    gradient.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
+
+    charts.overviewTrend = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Daily Revenue (LKR)',
+          data: revenues,
+          borderColor: '#4f46e5',
+          backgroundColor: gradient,
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#ff5757',
+          pointRadius: 4,
+          pointHoverRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `Revenue: Rs. ${Number(ctx.raw).toLocaleString()}`
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false } },
+          y: {
+            grid: { color: '#f1f5f9' },
+            ticks: { callback: (v) => `Rs. ${v.toLocaleString()}` }
+          }
+        }
+      }
+    });
+  } catch(e) { console.error('Overview trend error:', e); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// VISUAL ANALYTICS & INTELLIGENCE DASHBOARD (BEYOND JASPER REPORTS)
+// ═══════════════════════════════════════════════════════════════════════════════
+function setAnalyticsTime(days, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentAnalyticsDays = days;
+  loadAnalytics();
+}
+
+async function loadAnalytics() {
+  try {
+    const res = await apiFetch(`/analytics/full?days=${currentAnalyticsDays}`);
+    analyticsCache = res.data;
+    if (!analyticsCache) return;
+
+    renderAnalyticsKPIs(analyticsCache.overview, analyticsCache.revenueTrends);
+    renderRevenueVolumeChart(analyticsCache.revenueTrends);
+    renderRoutePerformanceChart(analyticsCache.routePerformance);
+    renderFleetOccupancyChart(analyticsCache.fleetOccupancy);
+    renderPaymentMethodsChart(analyticsCache.paymentMethods);
+    renderBookingStatusChart(analyticsCache.bookingStatuses);
+    renderRouteMatrixTable(analyticsCache.routePerformance);
+
+    if (window.lucide) lucide.createIcons();
+  } catch(e) { toast('Analytics load failed: ' + e.message, 'error'); }
+}
+
+function renderAnalyticsKPIs(overview, trends) {
+  if (!overview) return;
+  document.getElementById('a-revenue').textContent = `Rs. ${Number(overview.totalRevenue || 0).toLocaleString()}`;
+  document.getElementById('a-bookings').textContent = Number(overview.totalBookings || 0).toLocaleString();
+  document.getElementById('a-occupancy').textContent = `${overview.occupancyRate || 85.0}%`;
+  document.getElementById('a-routes').textContent = overview.totalRoutes || 0;
+  document.getElementById('a-buses').textContent = `${overview.totalBuses || 0} Fleet Buses`;
+  document.getElementById('a-rating').textContent = `${overview.avgRouteRating || 4.8} ★`;
+  document.getElementById('a-cancellations').textContent = overview.totalCancellations || 0;
+
+  const totalPax = (trends || []).reduce((acc, t) => acc + (t.bookingsCount || 0), 0);
+  document.getElementById('a-passengers').textContent = `${totalPax || overview.totalBookings} Passengers`;
+  
+  const cancelRate = overview.totalBookings > 0 
+    ? ((overview.totalCancellations / overview.totalBookings) * 100).toFixed(1)
+    : '0.0';
+  document.getElementById('a-cancel-rate').textContent = `${cancelRate}% Rate`;
+}
+
+// Chart 1: Revenue & Volume Dual Axis
+function renderRevenueVolumeChart(trends = []) {
+  const ctx = document.getElementById('revenueVolumeChart');
+  if (!ctx) return;
+  if (charts.revenueVolume) charts.revenueVolume.destroy();
+
+  const labels = trends.map(t => t.date);
+  const revenues = trends.map(t => Number(t.revenue || 0));
+  const counts = trends.map(t => Number(t.bookingsCount || 0));
+
+  const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 350);
+  gradient.addColorStop(0, 'rgba(99, 102, 241, 0.45)');
+  gradient.addColorStop(1, 'rgba(99, 102, 241, 0.02)');
+
+  charts.revenueVolume = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Gross Revenue (LKR)',
+          data: revenues,
+          yAxisID: 'y',
+          borderColor: '#4f46e5',
+          backgroundColor: gradient,
+          borderWidth: 3,
+          fill: true,
+          tension: 0.35,
+          pointBackgroundColor: '#4f46e5',
+          pointRadius: 4,
+          pointHoverRadius: 7
+        },
+        {
+          label: 'Bookings Volume',
+          data: counts,
+          yAxisID: 'y1',
+          type: 'bar',
+          backgroundColor: 'rgba(255, 87, 87, 0.75)',
+          borderRadius: 6,
+          barThickness: 12
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'top', labels: { font: { weight: '600', family: 'DM Sans' } } },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => ctx.datasetIndex === 0 
+              ? `Revenue: Rs. ${Number(ctx.raw).toLocaleString()}` 
+              : `Bookings: ${ctx.raw} tickets`
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          grid: { color: '#f1f5f9' },
+          ticks: { callback: (v) => `Rs. ${v.toLocaleString()}` }
+        },
+        y1: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          grid: { drawOnChartArea: false },
+          ticks: { stepSize: 1 }
+        }
+      }
+    }
+  });
+}
+
+// Chart 2: Top Performing Routes
+function renderRoutePerformanceChart(routePerf = []) {
+  const ctx = document.getElementById('routePerformanceChart');
+  if (!ctx) return;
+  if (charts.routePerf) charts.routePerf.destroy();
+
+  const sorted = [...routePerf].slice(0, 6);
+  const labels = sorted.map(r => `${r.source} → ${r.destination}`);
+  const revenues = sorted.map(r => Number(r.totalRevenue || 0));
+
+  charts.routePerf = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Revenue (LKR)',
+        data: revenues,
+        backgroundColor: [
+          'rgba(79, 70, 229, 0.85)',
+          'rgba(255, 87, 87, 0.85)',
+          'rgba(16, 185, 129, 0.85)',
+          'rgba(139, 92, 246, 0.85)',
+          'rgba(245, 158, 11, 0.85)',
+          'rgba(6, 182, 212, 0.85)'
+        ],
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: (ctx) => `Rs. ${Number(ctx.raw).toLocaleString()}` } }
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: { grid: { color: '#f1f5f9' }, ticks: { callback: (v) => `Rs. ${v.toLocaleString()}` } }
+      }
+    }
+  });
+}
+
+// Chart 3: Fleet Occupancy Doughnut
+function renderFleetOccupancyChart(fleet = []) {
+  const ctx = document.getElementById('fleetOccupancyChart');
+  if (!ctx) return;
+  if (charts.fleetOcc) charts.fleetOcc.destroy();
+
+  const labels = fleet.map(b => `${b.busName} (${b.busNumber})`);
+  const occupancies = fleet.map(b => b.occupancyPercentage || 75);
+
+  charts.fleetOcc = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels.length ? labels : ['Express Coach A', 'Super Luxury B', 'Comfort Express C'],
+      datasets: [{
+        data: occupancies.length ? occupancies : [88, 79, 92],
+        backgroundColor: [
+          '#4f46e5', '#ff5757', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4'
+        ],
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, family: 'DM Sans' } } },
+        tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw}% Occupied` } }
+      }
+    }
+  });
+}
+
+// Chart 4: Payment Methods
+function renderPaymentMethodsChart(methods = []) {
+  const ctx = document.getElementById('paymentMethodsChart');
+  if (!ctx) return;
+  if (charts.paymentMethods) charts.paymentMethods.destroy();
+
+  const labels = methods.map(m => m.method.replace('_', ' '));
+  const counts = methods.map(m => m.percentage);
+
+  charts.paymentMethods = new Chart(ctx, {
+    type: 'polarArea',
+    data: {
+      labels: labels.length ? labels : ['CREDIT CARD', 'DEBIT CARD', 'ONLINE BANKING', 'CASH'],
+      datasets: [{
+        data: counts.length ? counts : [45, 30, 15, 10],
+        backgroundColor: [
+          'rgba(79, 70, 229, 0.75)',
+          'rgba(255, 87, 87, 0.75)',
+          'rgba(16, 185, 129, 0.75)',
+          'rgba(245, 158, 11, 0.75)'
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+        tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw}% share` } }
+      }
+    }
+  });
+}
+
+// Chart 5: Booking Status Pie
+function renderBookingStatusChart(statuses = []) {
+  const ctx = document.getElementById('bookingStatusChart');
+  if (!ctx) return;
+  if (charts.bookingStatus) charts.bookingStatus.destroy();
+
+  const labels = statuses.map(s => s.status);
+  const counts = statuses.map(s => s.count);
+
+  charts.bookingStatus = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: labels.length ? labels : ['CONFIRMED', 'PENDING', 'CANCELLED'],
+      datasets: [{
+        data: counts.length ? counts : [85, 8, 7],
+        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+        borderColor: '#ffffff',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+        tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw} bookings` } }
+      }
+    }
+  });
+}
+
+// Route Performance Matrix Table
+function renderRouteMatrixTable(routes = []) {
+  const tbody = document.getElementById('route-matrix-tbody');
+  if (!tbody) return;
+  if (!routes.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No route data available</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = routes.map(r => `
+    <tr>
+      <td><strong>${r.source} → ${r.destination}</strong></td>
+      <td>${r.bookingsCount || 0}</td>
+      <td>${r.passengerCount || 0}</td>
+      <td><span style="color:#f59e0b;font-weight:700;">★ ${r.averageRating || 4.8}</span></td>
+      <td><strong style="color:#10b981;">Rs. ${Number(r.totalRevenue || 0).toLocaleString()}</strong></td>
+      <td><span class="badge ${r.bookingsCount > 5 ? 'badge-confirmed' : 'badge-pending'}">${r.bookingsCount > 5 ? 'High Demand' : 'Steady'}</span></td>
+    </tr>
+  `).join('');
+}
+
+// ── Export Analytics as PDF Report ───────────────────────────────────────────
+function exportAnalyticsPDF() {
+  const element = document.getElementById('analytics-report-wrapper');
+  const dateStr = new Date().toISOString().slice(0, 10);
+  
+  toast('Generating executive PDF report…', 'success');
+
+  const opt = {
+    margin:       [10, 10, 10, 10],
+    filename:     `GoBus_Executive_Analytics_Report_${dateStr}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+  };
+
+  if (window.html2pdf) {
+    html2pdf().set(opt).from(element).save();
+  } else {
+    window.print();
+  }
+}
+
+// ── Export Analytics as CSV ──────────────────────────────────────────────────
+function exportAnalyticsCSV() {
+  if (!analyticsCache || !analyticsCache.routePerformance) {
+    toast('No analytics data ready to export', 'error');
+    return;
+  }
+
+  const routes = analyticsCache.routePerformance;
+  let csv = 'Route ID,Source,Destination,Total Bookings,Passengers,Average Rating,Total Revenue (LKR)\n';
+  
+  routes.forEach(r => {
+    csv += `"${r.routeId}","${r.source}","${r.destination}",${r.bookingsCount},${r.passengerCount},${r.averageRating},${r.totalRevenue}\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `GoBus_Route_Analytics_${new Date().toISOString().slice(0, 10)}.csv`;
+  link.click();
+  toast('CSV report downloaded ✓');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ROUTES
+// ═══════════════════════════════════════════════════════════════════════════════
+let routesCache = [];
+
+async function loadRoutes() {
+  try {
+    const data = await apiFetch('/routes');
+    routesCache = data.data || [];
+    renderRoutes(routesCache);
+  } catch(e) { toast('Failed to load routes: '+e.message, 'error'); }
+}
+
+function renderRoutes(list) {
+  document.getElementById('routes-tbody').innerHTML = list.length
+    ? list.map(r => `<tr>
+        <td>${r.id}</td>
+        <td><strong>${r.source}</strong></td>
+        <td><strong>${r.destination}</strong></td>
+        <td>${r.distanceKm} km</td>
+        <td>${r.durationMinutes} min</td>
+        <td>Rs. ${Number(r.baseFare||0).toLocaleString()}</td>
+        <td>${r.averageRating ? r.averageRating.toFixed(1)+' ★' : '—'}</td>
+        <td><span class="badge ${r.active ? 'badge-active' : 'badge-inactive'}">${r.active ? 'Active' : 'Inactive'}</span></td>
+        <td><div class="actions-cell">
+          <button class="icon-btn" title="Edit" onclick='editRoute(${JSON.stringify(r)})'><i data-lucide="pencil"></i></button>
+          <button class="icon-btn" title="Delete" onclick="deleteRoute(${r.id},'${r.source} → ${r.destination}')"><i data-lucide="trash-2"></i></button>
+        </div></td>
+      </tr>`).join('')
+    : '<tr class="empty-row"><td colspan="9">No routes found</td></tr>';
+  if (window.lucide) lucide.createIcons();
+}
+
+function openRouteModal(r = null) {
+  document.getElementById('route-modal-title').textContent = r ? 'Edit Route' : 'Add Route';
+  document.getElementById('route-id').value   = r?.id  || '';
+  document.getElementById('r-source').value   = r?.source || '';
+  document.getElementById('r-dest').value     = r?.destination || '';
+  document.getElementById('r-dist').value     = r?.distanceKm || '';
+  document.getElementById('r-dur').value      = r?.durationMinutes || '';
+  document.getElementById('r-fare').value     = r?.baseFare || '';
+  openModal('route-modal');
+}
+
+function editRoute(r) { openRouteModal(r); }
+
+async function saveRoute() {
+  const id   = document.getElementById('route-id').value;
+  const body = {
+    source: document.getElementById('r-source').value.trim(),
+    destination: document.getElementById('r-dest').value.trim(),
+    distanceKm: Number(document.getElementById('r-dist').value),
+    durationMinutes: Number(document.getElementById('r-dur').value),
+    baseFare: Number(document.getElementById('r-fare').value),
+  };
+  if (!body.source || !body.destination || !body.distanceKm || !body.durationMinutes || !body.baseFare)
+    return toast('Please fill all fields', 'error');
+  try {
+    if (id) {
+      await apiFetch(`/routes/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+      toast('Route updated ✓');
+    } else {
+      await apiFetch('/routes', { method: 'POST', body: JSON.stringify(body) });
+      toast('Route created ✓');
+    }
+    closeModal('route-modal');
+    loadRoutes();
+  } catch(e) { toast('Error: '+e.message, 'error'); }
+}
+
+async function deleteRoute(id, name) {
+  confirm(`Soft-delete route "${name}"?`, async () => {
+    try {
+      await apiFetch(`/routes/${id}`, { method: 'DELETE' });
+      toast('Route deactivated ✓');
+      loadRoutes();
+    } catch(e) { toast('Error: '+e.message, 'error'); }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BUSES
+// ═══════════════════════════════════════════════════════════════════════════════
+async function loadBuses() {
+  try {
+    const data = await apiFetch('/buses');
+    renderBuses(data.data || []);
+  } catch(e) { toast('Failed to load buses: '+e.message, 'error'); }
+}
+
+function renderBuses(list) {
+  document.getElementById('buses-tbody').innerHTML = list.length
+    ? list.map(b => `<tr>
+        <td>${b.id}</td>
+        <td><strong>${b.busNumber}</strong></td>
+        <td>${b.busName}</td>
+        <td><span class="badge badge-type">${b.busType}</span></td>
+        <td>${b.totalSeats}</td>
+        <td><span class="badge ${b.active ? 'badge-active' : 'badge-inactive'}">${b.active ? 'Active' : 'Inactive'}</span></td>
+        <td><div class="actions-cell">
+          <button class="icon-btn" title="Edit" onclick='editBus(${JSON.stringify(b)})'><i data-lucide="pencil"></i></button>
+          <button class="icon-btn" title="Delete" onclick="deleteBus(${b.id},'${b.busNumber}')"><i data-lucide="trash-2"></i></button>
+        </div></td>
+      </tr>`).join('')
+    : '<tr class="empty-row"><td colspan="7">No buses found</td></tr>';
+  if (window.lucide) lucide.createIcons();
+}
+
+function openBusModal(b = null) {
+  document.getElementById('bus-modal-title').textContent = b ? 'Edit Bus' : 'Add Bus';
+  document.getElementById('bus-id').value   = b?.id || '';
+  document.getElementById('b-num').value    = b?.busNumber || '';
+  document.getElementById('b-name').value   = b?.busName || '';
+  document.getElementById('b-type').value   = b?.busType || 'AC';
+  document.getElementById('b-seats').value  = b?.totalSeats || '';
+  document.getElementById('b-num').disabled = !!b;
+  document.getElementById('b-seats').disabled = !!b;
+  openModal('bus-modal');
+}
+
+function editBus(b) { openBusModal(b); }
+
+async function saveBus() {
+  const id   = document.getElementById('bus-id').value;
+  const body = {
+    busNumber  : document.getElementById('b-num').value.trim(),
+    busName    : document.getElementById('b-name').value.trim(),
+    busType    : document.getElementById('b-type').value,
+    totalSeats : Number(document.getElementById('b-seats').value),
+  };
+  if (!body.busName || (!id && (!body.busNumber || !body.totalSeats)))
+    return toast('Please fill all fields', 'error');
+  try {
+    if (id) {
+      await apiFetch(`/buses/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+      toast('Bus updated ✓');
+    } else {
+      await apiFetch('/buses', { method: 'POST', body: JSON.stringify(body) });
+      toast('Bus created ✓');
+    }
+    closeModal('bus-modal');
+    loadBuses();
+  } catch(e) { toast('Error: '+e.message, 'error'); }
+}
+
+async function deleteBus(id, num) {
+  confirm(`Soft-delete bus "${num}"?`, async () => {
+    try {
+      await apiFetch(`/buses/${id}`, { method: 'DELETE' });
+      toast('Bus deactivated ✓');
+      loadBuses();
+    } catch(e) { toast('Error: '+e.message, 'error'); }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SCHEDULES
+// ═══════════════════════════════════════════════════════════════════════════════
+async function loadSchedules() {
+  try {
+    const data = await apiFetch('/schedules');
+    renderSchedules(data.data || []);
+  } catch(e) { toast('Failed to load schedules: '+e.message, 'error'); }
+}
+
+function renderSchedules(list) {
+  document.getElementById('schedules-tbody').innerHTML = list.length
+    ? list.map(s => `<tr>
+        <td>${s.id}</td>
+        <td><strong>${s.source} → ${s.destination}</strong></td>
+        <td>${s.busName} <small style="color:var(--muted)">(${s.busNumber})</small></td>
+        <td>${fmtDT(s.departureTime)}</td>
+        <td>${fmtDT(s.arrivalTime)}</td>
+        <td>Rs. ${Number(s.fare||0).toLocaleString()}</td>
+        <td><span class="badge ${s.availableSeats > 0 ? 'badge-active' : 'badge-inactive'}">${s.availableSeats}</span></td>
+        <td><div class="actions-cell">
+          <button class="icon-btn" title="Edit" onclick='editSchedule(${JSON.stringify(s)})'><i data-lucide="pencil"></i></button>
+          <button class="icon-btn" title="Delete" onclick="deleteSchedule(${s.id})"><i data-lucide="trash-2"></i></button>
+        </div></td>
+      </tr>`).join('')
+    : '<tr class="empty-row"><td colspan="8">No schedules found</td></tr>';
+  if (window.lucide) lucide.createIcons();
+}
+
+async function openScheduleModal(s = null) {
+  document.getElementById('schedule-modal-title').textContent = s ? 'Edit Schedule' : 'Add Schedule';
+  document.getElementById('sched-id').value = s?.id || '';
+
+  const [routesRes, busesRes] = await Promise.all([apiFetch('/routes'), apiFetch('/buses')]);
+  const routes = routesRes.data || [];
+  const buses  = busesRes.data  || [];
+
+  document.getElementById('sched-route').innerHTML =
+    routes.map(r => `<option value="${r.id}" ${s?.routeId==r.id?'selected':''}>${r.source} → ${r.destination}</option>`).join('');
+  document.getElementById('sched-bus').innerHTML =
+    buses.map(b => `<option value="${b.id}" ${s?.busId==b.id?'selected':''}>${b.busName} (${b.busNumber})</option>`).join('');
+
+  if (s) {
+    document.getElementById('sched-dep').value   = s.departureTime?.slice(0,16) || '';
+    document.getElementById('sched-arr').value   = s.arrivalTime?.slice(0,16)   || '';
+    document.getElementById('sched-fare').value  = s.fare  || '';
+    document.getElementById('sched-seats').value = s.availableSeats || '';
+  } else {
+    document.getElementById('sched-dep').value  = '';
+    document.getElementById('sched-arr').value  = '';
+    document.getElementById('sched-fare').value = '';
+    document.getElementById('sched-seats').value = '';
+  }
+  openModal('schedule-modal');
+}
+
+function editSchedule(s) { openScheduleModal(s); }
+
+async function saveSchedule() {
+  const id   = document.getElementById('sched-id').value;
+  const body = {
+    routeId       : Number(document.getElementById('sched-route').value),
+    busId         : Number(document.getElementById('sched-bus').value),
+    departureTime : document.getElementById('sched-dep').value,
+    arrivalTime   : document.getElementById('sched-arr').value,
+    fare          : Number(document.getElementById('sched-fare').value),
+    availableSeats: Number(document.getElementById('sched-seats').value),
+  };
+  if (!body.routeId || !body.busId || !body.departureTime || !body.arrivalTime || !body.fare || !body.availableSeats)
+    return toast('Please fill all fields', 'error');
+  if (body.arrivalTime <= body.departureTime) return toast('Arrival must be after departure', 'error');
+  try {
+    if (id) {
+      await apiFetch(`/schedules/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+      toast('Schedule updated ✓');
+    } else {
+      await apiFetch('/schedules', { method: 'POST', body: JSON.stringify(body) });
+      toast('Schedule created ✓');
+    }
+    closeModal('schedule-modal');
+    loadSchedules();
+  } catch(e) { toast('Error: '+e.message, 'error'); }
+}
+
+async function deleteSchedule(id) {
+  confirm(`Delete schedule #${id}?`, async () => {
+    try {
+      await apiFetch(`/schedules/${id}`, { method: 'DELETE' });
+      toast('Schedule deleted ✓');
+      loadSchedules();
+    } catch(e) { toast('Error: '+e.message, 'error'); }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BOOKINGS
+// ═══════════════════════════════════════════════════════════════════════════════
+async function loadBookings() {
+  try {
+    const data = await apiFetch('/bookings');
+    const list = data.data || [];
+    document.getElementById('bookings-tbody').innerHTML = list.length
+      ? list.map(b => `<tr>
+          <td>#${b.id}</td><td>${b.username}</td>
+          <td><strong>${b.source} → ${b.destination}</strong></td>
+          <td>${b.passengerName}</td>
+          <td>${fmtDT(b.departureTime)}</td>
+          <td>${(b.seatNumbers||[]).join(', ') || '—'}</td>
+          <td>Rs. ${Number(b.totalAmount||0).toLocaleString()}</td>
+          <td><span class="badge badge-${(b.status||'').toLowerCase()}">${b.status}</span></td>
+        </tr>`).join('')
+      : '<tr class="empty-row"><td colspan="8">No bookings found</td></tr>';
+    if (window.lucide) lucide.createIcons();
+  } catch(e) { toast('Failed to load bookings: '+e.message, 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// USERS
+// ═══════════════════════════════════════════════════════════════════════════════
+async function loadUsers() {
+  try {
+    const data = await apiFetch('/users');
+    const list = data.data || [];
+    document.getElementById('users-tbody').innerHTML = list.length
+      ? list.map(u => `<tr>
+          <td>${u.id}</td>
+          <td><strong>${u.username}</strong></td>
+          <td>${u.fullName || '—'}</td>
+          <td>${u.email}</td>
+          <td>${u.phone || '—'}</td>
+          <td>${(u.roles||[]).map(r => `<span class="badge ${r.includes('ADMIN') ? 'badge-admin' : 'badge-user'}">${r.replace('ROLE_','')}</span>`).join(' ')}</td>
+          <td><span class="badge ${u.enabled ? 'badge-active' : 'badge-inactive'}">${u.enabled ? 'Active' : 'Disabled'}</span></td>
+          <td><div class="actions-cell">
+            <button class="btn btn-warning btn-sm" onclick="toggleUser(${u.id},'${u.username}',${u.enabled})">
+              ${u.enabled ? 'Disable' : 'Enable'}
+            </button>
+            <button class="icon-btn" title="Delete" onclick="deleteUser(${u.id},'${u.username}')"><i data-lucide="trash-2"></i></button>
+          </div></td>
+        </tr>`).join('')
+      : '<tr class="empty-row"><td colspan="8">No users found</td></tr>';
+    if (window.lucide) lucide.createIcons();
+  } catch(e) { toast('Failed to load users: '+e.message, 'error'); }
+}
+
+async function toggleUser(id, username, enabled) {
+  confirm(`${enabled ? 'Disable' : 'Enable'} user "${username}"?`, async () => {
+    try {
+      await apiFetch(`/users/${id}/toggle-status`, { method: 'PATCH' });
+      toast(`User ${enabled ? 'disabled' : 'enabled'} ✓`);
+      loadUsers();
+    } catch(e) { toast('Error: '+e.message, 'error'); }
+  });
+}
+
+async function deleteUser(id, username) {
+  confirm(`Permanently delete user "${username}"? This cannot be undone.`, async () => {
+    try {
+      await apiFetch(`/users/${id}`, { method: 'DELETE' });
+      toast('User deleted ✓');
+      loadUsers();
+    } catch(e) { toast('Error: '+e.message, 'error'); }
+  });
+}
+
+// Close modals on backdrop click
+document.querySelectorAll('.modal-backdrop').forEach(bd => {
+  bd.addEventListener('click', e => { if (e.target === bd) bd.classList.remove('open'); });
+});
+</script>
+</body>
+</html>

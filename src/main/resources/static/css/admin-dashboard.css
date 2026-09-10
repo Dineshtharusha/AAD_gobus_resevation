@@ -1,0 +1,113 @@
+/* ==========================================================================
+   GoBus - Admin Dashboard CSS - Vibrant Modern Edition
+   ========================================================================== */
+
+:root {
+    --primary: #4f46e5;
+    --primary-dark: #3730a3;
+    --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #3730a3 100%);
+    
+    --coral: #ff5757;
+    --coral-gradient: linear-gradient(135deg, #ff6b6b 0%, #ff5757 50%, #ff8e53 100%);
+    
+    --secondary: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --purple: #8b5cf6;
+    
+    --bg-dark: #0f172a;
+    --bg-light: #f8fafc;
+    --text-dark: #0f172a;
+    --text-light: #64748b;
+    --border: #e2e8f0;
+    --radius: 14px;
+    --shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.08);
+    --shadow-lg: 0 20px 40px -10px rgba(15, 23, 42, 0.15);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    color: var(--text-dark);
+    min-height: 100vh;
+}
+
+/* Top Nav */
+.admin-navbar {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 3px solid #6366f1;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 14px 30px;
+    flex-shrink: 0;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.45rem;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.brand:hover {
+    transform: scale(1.03);
+}
+
+.brand span:last-child {
+    background: var(--coral-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.brand-mark {
+    width: 36px;
+    height: 36px;
+    background: var(--coral-gradient);
+    color: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(255, 87, 87, 0.4);
+}
+
+.badge-admin {
+    background: var(--coral-gradient);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 8px rgba(255, 87, 87, 0.4);
+}

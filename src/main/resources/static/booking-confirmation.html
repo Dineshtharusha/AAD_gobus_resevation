@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Booking | GoBus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/booking.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+<a class="brand no-print" href="index.html"><span class="brand-mark">G</span><span>Go<span>Bus</span></span></a>
+
+<div class="card no-print" id="checkout-card">
+    <div class="step-bar">
+        <div class="step done"></div><div class="step done"></div><div class="step done"></div><div class="step done"></div>
+    </div>
+    <h2>Confirm Booking</h2>
+
+    <div class="summary-box" id="trip-summary"></div>
+
+    <form id="booking-form" novalidate>
+        <h3 class="sub"><i data-lucide="user-check"></i> Passenger Details</h3>
+        <div class="form-row">
+            <div class="form-group"><label for="firstName">First Name</label><input id="firstName" type="text" placeholder="First name" required></div>
+            <div class="form-group"><label for="lastName">Last Name</label><input id="lastName" type="text" placeholder="Last name" required></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label for="nic">NIC Number</label><input id="nic" type="text" placeholder="199912345678" required></div>
+            <div class="form-group"><label for="age">Age</label><input id="age" type="number" placeholder="25" min="1" max="120" required></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="gender">Gender</label>
+                <select id="gender" required>
+                    <option value="">Select gender…</option>
+                    <option value="MALE">Male</option>
+                    <option value="FEMALE">Female</option>
+                    <option value="OTHER">Other</option>
+                </select>
+            </div>
+            <div class="form-group"><label for="pPhone">Phone Number</label><input id="pPhone" type="tel" placeholder="+94771234567" required></div>
+        </div>
+
+        <h3 class="sub"><i data-lucide="credit-card"></i> Payment Method</h3>
+        <div class="form-group">
+            <select id="paymentMethod" required>
+                <option value="">Select payment method…</option>
+                <option value="CASH">Cash on Boarding</option>
+                <option value="CREDIT_CARD">Credit Card (Visa / Mastercard)</option>
+                <option value="DEBIT_CARD">Debit Card</option>
+                <option value="NET_BANKING">Online Banking</option>
+            </select>
+        </div>
+
+        <div id="alert-box"></div>
+        <button class="btn btn-confirm" type="submit" id="confirm-btn">
+            <i data-lucide="check-circle"></i> Confirm &amp; Pay
+        </button>
+        <button class="btn btn-back" type="button" onclick="window.history.back()">
+            <i data-lucide="arrow-left"></i> Go back
+        </button>
+    </form>
+</div>
+
+<!-- SUCCESS CONFIRMATION & TICKET VIEW -->
+<div class="card" id="success-card" style="display:none; max-width:680px;">
+    <div style="text-align:center; padding-bottom: 20px; border-bottom: 2px solid #f1f5f9;">
+        <div style="width:60px; height:60px; background:#dcfce7; color:#16a34a; border-radius:50%; display:grid; place-items:center; margin:0 auto 14px; font-size:1.8rem;">
+            <i data-lucide="check-circle"></i>
+        </div>
+        <h2 style="margin-bottom:6px;">Booking &amp; Payment Successful!</h2>
+        <p style="color:#64748b; font-size:0.95rem;">Your seats have been confirmed. Your official electronic ticket is ready below.</p>
+        
+        <div style="display:flex; justify-content:center; gap:12px; margin-top:18px;" class="no-print">
+            <button class="btn-confirm" style="margin:0; padding:10px 20px; width:auto;" onclick="printSuccessTicket()">
+                <i data-lucide="printer"></i> Print E-Ticket
+            </button>
+            <button class="btn-back" style="margin:0; padding:10px 20px; width:auto; background:#10b981; color:#fff; border:none;" onclick="downloadSuccessPDF()">
+                <i data-lucide="download"></i> Download PDF
+            </button>
+            <button class="btn-back" style="margin:0; padding:10px 18px; width:auto;" onclick="window.location.href='user-dashboard.html'">
+                <i data-lucide="layout-dashboard"></i> My Dashboard
+            </button>
+        </div>
+    </div>
+
+    <!-- Printable Ticket Container -->
+    <div id="confirmed-ticket" style="margin-top:24px; padding:24px; background:#fff; border:2px solid #0f172a; border-radius:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #e2e8f0; padding-bottom:14px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div class="brand-mark" style="width:36px;height:36px;font-size:1.1rem">G</div>
+                <div>
+                    <h3 style="font-family:'Space Grotesk',sans-serif; font-size:1.3rem; margin:0;">Go<span style="color:#ff5757;">Bus</span></h3>
+                    <small style="color:#64748b;">Official E-Ticket / Boarding Pass</small>
+                </div>
+            </div>
+            <div style="text-align:right;">
+                <small style="color:#94a3b8; font-weight:700; display:block;">REF NUMBER</small>
+                <strong style="color:#4f46e5; font-size:1.1rem;" id="succ-ref">#GB-0000</strong>
+            </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px 20px; margin:18px 0;">
+            <div>
+                <small style="color:#6366f1; font-weight:800; text-transform:uppercase;">FROM</small>
+                <h4 style="font-size:1.3rem; margin:2px 0;" id="succ-source">COLOMBO</h4>
+                <p style="margin:0; font-size:0.95rem; font-weight:700;" id="succ-dep-time">06:30 AM</p>
+            </div>
+            <div style="text-align:center; color:#64748b; font-size:0.85rem;">
+                <i data-lucide="bus" style="width:24px; height:24px; color:#4f46e5;"></i>
+                <div id="succ-bus">Express AC</div>
+            </div>
+            <div style="text-align:right;">
+                <small style="color:#6366f1; font-weight:800; text-transform:uppercase;">TO</small>
+                <h4 style="font-size:1.3rem; margin:2px 0;" id="succ-dest">KANDY</h4>
+                <p style="margin:0; font-size:0.95rem; font-weight:700;" id="succ-arr-time">10:45 AM</p>
+            </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:0.92rem; margin-bottom:18px;">
+            <div><span style="color:#64748b;">Passenger:</span> <strong id="succ-name">Dinesh Perera</strong></div>
+            <div><span style="color:#64748b;">NIC:</span> <strong id="succ-nic">199912345678</strong></div>
+            <div><span style="color:#64748b;">Seats:</span> <strong style="color:#ff5757; font-size:1.05rem;" id="succ-seats">Seat 12</strong></div>
+            <div><span style="color:#64748b;">Total Paid:</span> <strong style="color:#16a34a; font-size:1.05rem;" id="succ-price">Rs. 1,850</strong></div>
+            <div><span style="color:#64748b;">Transaction:</span> <strong id="succ-txn">TXN-123456</strong></div>
+            <div><span style="color:#64748b;">Status:</span> <strong style="color:#16a34a;">CONFIRMED &amp; PAID</strong></div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; border-top:2px dashed #cbd5e1; padding-top:14px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <img id="succ-qr" src="" alt="QR" style="width:75px; height:75px; border:1px solid #e2e8f0; border-radius:6px; padding:2px;">
+                <small style="color:#64748b; max-width:200px; display:block;">Show this QR code at boarding gate for instant scanning.</small>
+            </div>
+            <div style="text-align:right;">
+                <div style="width:140px; height:36px; background:repeating-linear-gradient(90deg,#0f172a 0px,#0f172a 2px,transparent 2px,transparent 4px,#0f172a 4px,#0f172a 7px,transparent 7px,transparent 9px); margin-left:auto;"></div>
+                <small style="font-family:monospace; color:#64748b; letter-spacing:1px;" id="succ-barcode">GB-BKG-2026</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const API_BASE = 'http://localhost:8080/api/v1';
+const token    = localStorage.getItem('token');
+if (!token) { window.location.href = 'login.html'; }
+if (window.lucide) lucide.createIcons();
+
+const pending = JSON.parse(localStorage.getItem('pendingBooking') || 'null');
+if (!pending) { window.location.href = 'index.html'; }
+
+document.getElementById('trip-summary').innerHTML = `
+    <div class="summary-row"><span>Route</span><span>${pending.route}</span></div>
+    <div class="summary-row"><span>Departure</span><span>${pending.dep}</span></div>
+    <div class="summary-row"><span>Arrival</span><span>${pending.arr}</span></div>
+    <div class="summary-row"><span>Bus</span><span>${pending.journey}</span></div>
+    <div class="summary-row"><span>Seat</span><span>Seat ${pending.seatNumber}</span></div>
+    <div class="summary-row"><span>Total Amount</span><span style="color:#ff5757;font-size:1.15rem;font-weight:700">Rs. ${Number(pending.price).toLocaleString()}</span></div>`;
+
+document.getElementById('booking-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn   = document.getElementById('confirm-btn');
+    const alertBox = document.getElementById('alert-box');
+    alertBox.innerHTML = '';
+    btn.disabled = true;
+    btn.textContent = 'Processing…';
+
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName  = document.getElementById('lastName').value.trim();
+    const nic       = document.getElementById('nic').value.trim();
+    const age       = Number(document.getElementById('age').value);
+    const gender    = document.getElementById('gender').value;
+    const phone     = document.getElementById('pPhone').value.trim();
+    const method    = document.getElementById('paymentMethod').value;
+
+    if (!firstName || !lastName || !nic || !age || !gender || !phone) {
+        showAlert('error', 'Please fill in all passenger details.');
+        resetBtn(btn); return;
+    }
+    if (!method) { showAlert('error', 'Please select a payment method.'); resetBtn(btn); return; }
+
+    try {
+        // Step 1: Create booking
+        const bookRes  = await fetch(`${API_BASE}/bookings`, {
+            method : 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body   : JSON.stringify({ scheduleId: Number(pending.scheduleId), seatIds: [Number(pending.seatId || pending.seatNumber)], passenger: { firstName, lastName, nic, age, gender, phone } })
+        });
+        const bookData = await bookRes.json();
+        if (!bookRes.ok || !bookData.success) { showAlert('error', bookData.message || 'Booking failed.'); resetBtn(btn); return; }
+
+        // Step 2: Process payment
+        const payRes  = await fetch(`${API_BASE}/payments`, {
+            method : 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body   : JSON.stringify({ bookingId: bookData.data.id, method })
+        });
+        const payData = await payRes.json();
+        if (!payRes.ok || !payData.success) { showAlert('error', payData.message || 'Payment failed. Check your dashboard.'); resetBtn(btn); return; }
+
+        localStorage.removeItem('pendingBooking');
+        showConfirmedTicket(bookData.data, payData.data);
+
+    } catch (err) {
+        console.error(err);
+        showAlert('error', 'Server error. Make sure the API is running on port 8080.');
+        resetBtn(btn);
+    }
+});
+
+function showConfirmedTicket(booking, payment) {
+    document.getElementById('checkout-card').style.display = 'none';
+    const sc = document.getElementById('success-card');
+    sc.style.display = 'block';
+
+    document.getElementById('succ-ref').textContent = `#GB-BKG-${String(booking.id).padStart(5, '0')}`;
+    document.getElementById('succ-source').textContent = (booking.source || 'COLOMBO').toUpperCase();
+    document.getElementById('succ-dest').textContent = (booking.destination || 'KANDY').toUpperCase();
+    document.getElementById('succ-dep-time').textContent = booking.departureTime ? new Date(booking.departureTime).toLocaleTimeString('en-LK', { hour: '2-digit', minute: '2-digit' }) : pending.dep;
+    document.getElementById('succ-arr-time').textContent = booking.arrivalTime ? new Date(booking.arrivalTime).toLocaleTimeString('en-LK', { hour: '2-digit', minute: '2-digit' }) : pending.arr;
+    document.getElementById('succ-bus').textContent = booking.busName || pending.journey || 'GoBus Express';
+    document.getElementById('succ-name').textContent = booking.passengerName;
+    document.getElementById('succ-nic').textContent = booking.passengerNic;
+    document.getElementById('succ-seats').textContent = (booking.seatNumbers || [pending.seatNumber]).map(s => `Seat ${s}`).join(', ');
+    document.getElementById('succ-price').textContent = `Rs. ${Number(booking.totalAmount || pending.price).toLocaleString()}`;
+    document.getElementById('succ-txn').textContent = payment.transactionId || 'TXN-SUCCESS';
+    document.getElementById('succ-barcode').textContent = `GB-${String(booking.id).padStart(4, '0')}-${booking.passengerNic.slice(-4)}`;
+
+    const qrData = encodeURIComponent(`GoBus-Ticket|ID:${booking.id}|Route:${booking.source}->${booking.destination}|Passenger:${booking.passengerName}|Seats:${(booking.seatNumbers||[]).join(',')}`);
+    document.getElementById('succ-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`;
+
+    if (window.lucide) lucide.createIcons();
+}
+
+function printSuccessTicket() {
+    window.print();
+}
+
+function downloadSuccessPDF() {
+    const el = document.getElementById('confirmed-ticket');
+    const ref = document.getElementById('succ-ref').textContent.replace('#', '');
+    const opt = {
+        margin:       [10, 10, 10, 10],
+        filename:     `GoBus_Ticket_${ref}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    if (window.html2pdf) {
+        html2pdf().set(opt).from(el).save();
+    } else {
+        window.print();
+    }
+}
+
+function showAlert(type, msg) {
+    document.getElementById('alert-box').innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+}
+function resetBtn(btn) {
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="check-circle"></i> Confirm &amp; Pay';
+    if (window.lucide) lucide.createIcons();
+}
+</script>
+</body>
+</html>

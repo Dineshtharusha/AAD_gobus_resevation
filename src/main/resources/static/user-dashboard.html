@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard | GoBus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="user-navbar no-print">
+        <div class="navbar-brand">
+            <a href="index.html" class="brand">
+                <span class="brand-mark">G</span>
+                <span>Go<span>Bus</span></span>
+            </a>
+        </div>
+        
+        <div class="navbar-menu" id="navbar-menu">
+            <a class="nav-link active" data-section="dashboard" href="#"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a>
+            <a class="nav-link" data-section="bookings" href="#"><i data-lucide="ticket-check"></i><span>My Bookings</span></a>
+            <a class="nav-link" data-section="notifications" href="#"><i data-lucide="bell"></i><span>Notifications</span><span class="nav-badge" id="notif-badge">0</span></a>
+            <a class="nav-link" data-section="reviews" href="#"><i data-lucide="star"></i><span>My Reviews</span></a>
+            <a class="nav-link" data-section="profile" href="#"><i data-lucide="user"></i><span>Profile</span></a>
+        </div>
+
+        <div class="navbar-right">
+            <div class="user-menu">
+                <button class="user-avatar-btn" id="user-menu-toggle">
+                    <span class="user-avatar" id="user-avatar-initials">?</span>
+                    <span id="user-name">Loading…</span>
+                    <i data-lucide="chevron-down"></i>
+                </button>
+                <div class="dropdown" id="user-dropdown" style="display:none;">
+                    <p id="profile-name" style="font-weight:600;padding:12px 16px;"></p>
+                    <p id="profile-email" style="font-size:0.85rem;color:#64748b;padding:0 16px 12px;"></p>
+                    <hr>
+                    <button onclick="window.location.href='index.html'" style="width:100%;text-align:left;padding:10px 16px;border:none;background:none;cursor:pointer;font-family:inherit;transition:all 0.2s;">🏠 Home</button>
+                    <button id="dd-logout" style="width:100%;text-align:left;padding:10px 16px;border:none;background:none;cursor:pointer;font-family:inherit;color:#ef4444;transition:all 0.2s;">🚪 Sign out</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="user-container no-print">
+        <header class="page-header">
+            <h1 id="section-title">Dashboard</h1>
+            <p class="page-subtitle">Welcome back! Manage your bookings, e-tickets, and travel history</p>
+        </header>
+
+        <!-- DASHBOARD SECTION -->
+        <section class="content-section active" id="dashboard">
+            <div class="stats-grid" id="stats-grid">
+                <div class="stat-card" style="--card-gradient: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%)"><i data-lucide="ticket-check"></i><div><h3 id="stat-bookings">—</h3><p>Total Bookings</p></div></div>
+                <div class="stat-card" style="--card-gradient: linear-gradient(135deg, #10B981 0%, #047857 100%)"><i data-lucide="clock"></i><div><h3 id="stat-upcoming">—</h3><p>Upcoming Trips</p></div></div>
+                <div class="stat-card" style="--card-gradient: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)"><i data-lucide="bell"></i><div><h3 id="stat-notifs">—</h3><p>Notifications</p></div></div>
+                <div class="stat-card" style="--card-gradient: linear-gradient(135deg, #F59E0B 0%, #D97706 100%)"><i data-lucide="star"></i><div><h3 id="stat-reviews">—</h3><p>My Reviews</p></div></div>
+            </div>
+            <div class="quick-actions">
+                <h2 style="margin-bottom:16px;">Quick actions</h2>
+                <div class="quick-action-grid">
+                    <button class="quick-action" onclick="window.location.href='index.html'">
+                        <i data-lucide="search"></i><h4>Search &amp; Book</h4><p>Find your next journey</p>
+                    </button>
+                    <button class="quick-action" onclick="switchSection('bookings')">
+                        <i data-lucide="ticket"></i><h4>View E-Tickets</h4><p>Print or download tickets</p>
+                    </button>
+                    <button class="quick-action" onclick="switchSection('notifications')">
+                        <i data-lucide="bell"></i><h4>Notifications</h4><p>Check your travel inbox</p>
+                    </button>
+                    <button class="quick-action" onclick="switchSection('reviews')">
+                        <i data-lucide="star"></i><h4>My Reviews</h4><p>Routes you reviewed</p>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- BOOKINGS SECTION -->
+        <section class="content-section" id="bookings">
+            <div class="section-header">
+                <div>
+                    <h2>My Bookings &amp; E-Tickets</h2>
+                    <p style="color:#64748b;font-size:0.9rem;margin-top:2px;">View, print, or download your official digital bus tickets</p>
+                </div>
+                <button class="btn-primary" onclick="window.location.href='index.html'"><i data-lucide="plus"></i> New Booking</button>
+            </div>
+            <div id="bookings-list"><p style="color:#64748b;">Loading bookings…</p></div>
+        </section>
+
+        <!-- NOTIFICATIONS SECTION -->
+        <section class="content-section" id="notifications">
+            <div class="section-header">
+                <h2>Notifications</h2>
+                <button class="btn-secondary" id="mark-all-read-btn">Mark all read</button>
+            </div>
+            <div id="notifications-list"><p style="color:#64748b;">Loading notifications…</p></div>
+        </section>
+
+        <!-- REVIEWS SECTION -->
+        <section class="content-section" id="reviews">
+            <div class="section-header">
+                <h2>My Reviews</h2>
+            </div>
+            <div id="reviews-list"><p style="color:#64748b;">Loading reviews…</p></div>
+        </section>
+
+        <!-- PROFILE SECTION -->
+        <section class="content-section" id="profile">
+            <h2>My Profile</h2>
+            <div class="profile-card">
+                <div class="profile-avatar" id="profile-avatar-big">?</div>
+                <div class="profile-info">
+                    <h3 id="profile-full-name">—</h3>
+                    <p id="profile-email-big">—</p>
+                    <p id="profile-roles" style="font-size:0.85rem;color:#64748b;margin-top:4px;"></p>
+                </div>
+            </div>
+            <div style="margin-top:24px;padding:20px;background:#f8fafc;border-radius:12px;max-width:400px;border:1px solid #e2e8f0;">
+                <p style="color:#64748b;font-size:0.95rem;">Bookings &amp; tickets are synced with your registered account.</p>
+                <button class="btn-primary" style="margin-top:12px;" onclick="window.location.href='index.html'">
+                    <i data-lucide="search"></i> Search &amp; Book Tickets
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <!-- ==================== E-TICKET MODAL ==================== -->
+    <div class="ticket-modal-backdrop" id="ticket-modal" style="display:none;">
+        <div class="ticket-modal-wrapper">
+            <!-- Modal Actions Bar -->
+            <div class="ticket-modal-bar no-print">
+                <div class="ticket-modal-title">
+                    <i data-lucide="ticket"></i>
+                    <span>Official E-Ticket / Boarding Pass</span>
+                </div>
+                <div class="ticket-actions">
+                    <button class="btn-ticket-action btn-print" onclick="printETicket()">
+                        <i data-lucide="printer"></i> Print Ticket
+                    </button>
+                    <button class="btn-ticket-action btn-download" onclick="downloadETicketPDF()">
+                        <i data-lucide="download"></i> Download PDF
+                    </button>
+                    <button class="btn-ticket-close" onclick="closeETicketModal()" aria-label="Close">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- The Printable E-Ticket Card -->
+            <div class="e-ticket-card" id="printable-ticket">
+                <!-- Ticket Header -->
+                <div class="ticket-header">
+                    <div class="ticket-brand">
+                        <div class="ticket-brand-mark">G</div>
+                        <div>
+                            <h2 class="ticket-brand-name">Go<span>Bus</span></h2>
+                            <p class="ticket-brand-sub">Intercity Express Bus Services</p>
+                        </div>
+                    </div>
+                    <div class="ticket-ref-box">
+                        <span class="ticket-ref-label">BOOKING REFERENCE</span>
+                        <strong class="ticket-ref-val" id="t-booking-id">#GB-BKG-0000</strong>
+                        <span class="ticket-status-pill" id="t-status">CONFIRMED</span>
+                    </div>
+                </div>
+
+                <!-- Journey Banner -->
+                <div class="ticket-journey-banner">
+                    <div class="journey-node">
+                        <span class="node-label">ORIGIN</span>
+                        <h3 class="node-city" id="t-source">COLOMBO</h3>
+                        <p class="node-time" id="t-dep-time">06:30 AM</p>
+                        <span class="node-date" id="t-dep-date">10 Sep 2026</span>
+                    </div>
+                    <div class="journey-route-visual">
+                        <div class="route-line-icon"><i data-lucide="bus"></i></div>
+                        <div class="route-duration" id="t-bus-type">Luxury Express AC</div>
+                    </div>
+                    <div class="journey-node text-right">
+                        <span class="node-label">DESTINATION</span>
+                        <h3 class="node-city" id="t-destination">KANDY</h3>
+                        <p class="node-time" id="t-arr-time">10:45 AM</p>
+                        <span class="node-date" id="t-arr-date">10 Sep 2026</span>
+                    </div>
+                </div>
+
+                <!-- Ticket Details Grid -->
+                <div class="ticket-details-grid">
+                    <div class="t-cell">
+                        <span class="t-label">PASSENGER NAME</span>
+                        <strong class="t-val" id="t-passenger-name">Dinesh Perera</strong>
+                    </div>
+                    <div class="t-cell">
+                        <span class="t-label">NIC / PASSPORT</span>
+                        <strong class="t-val" id="t-passenger-nic">199912345678</strong>
+                    </div>
+                    <div class="t-cell">
+                        <span class="t-label">SEAT NUMBER(S)</span>
+                        <strong class="t-val highlight-seat" id="t-seat-numbers">Seat 12</strong>
+                    </div>
+                    <div class="t-cell">
+                        <span class="t-label">BUS NUMBER / COACH</span>
+                        <strong class="t-val" id="t-bus-number">ND-8821</strong>
+                    </div>
+                    <div class="t-cell">
+                        <span class="t-label">TOTAL FARE PAID</span>
+                        <strong class="t-val price-val" id="t-amount">Rs. 1,850</strong>
+                    </div>
+                    <div class="t-cell">
+                        <span class="t-label">BOOKING DATE</span>
+                        <strong class="t-val" id="t-booking-date">10 Sep 2026, 14:30</strong>
+                    </div>
+                </div>
+
+                <!-- Perforated Divider -->
+                <div class="ticket-perforated-divider">
+                    <div class="notch notch-left"></div>
+                    <div class="dashed-line"></div>
+                    <div class="notch notch-right"></div>
+                </div>
+
+                <!-- Ticket Footer & QR Validation -->
+                <div class="ticket-footer">
+                    <div class="ticket-qr-section">
+                        <img id="t-qr-code" src="" alt="Ticket QR Code" class="ticket-qr-img">
+                        <div class="qr-desc">
+                            <span class="qr-title">SCAN TO VERIFY</span>
+                            <small>Present this QR code to the bus conductor at boarding gate.</small>
+                        </div>
+                    </div>
+                    <div class="ticket-barcode-section">
+                        <div class="barcode-graphic"></div>
+                        <p class="barcode-num" id="t-barcode-str">GB-9477-8821-2026</p>
+                    </div>
+                </div>
+
+                <!-- Important Notice -->
+                <div class="ticket-notice">
+                    <p><strong>Important Travel Notice:</strong> Please report to the departure terminal at least 15 minutes before the scheduled departure time with your National Identity Card (NIC) and this e-ticket. Tickets are non-transferable.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+const API_BASE = 'http://localhost:8080/api/v1';
+const token    = localStorage.getItem('token');
+const userRaw  = localStorage.getItem('user');
+
+// Guard: redirect if not logged in
+if (!token || !userRaw) { window.location.href = 'login.html'; }
+
+const user = JSON.parse(userRaw || '{}');
+let allBookingsCache = [];
+
+if (window.lucide) lucide.createIcons();
+
+// ── Init UI ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    setUserInfo();
+    setupNavigation();
+    setupLogout();
+    setupSidebar();
+    setupUserMenu();
+    fetchDashboardData();
+    document.getElementById('mark-all-read-btn').addEventListener('click', markAllRead);
+});
+
+function setUserInfo() {
+    const name = user.fullName || user.username || 'User';
+    const initials = name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0,2);
+    document.getElementById('user-name').textContent = name;
+    document.getElementById('user-avatar-initials').textContent = initials;
+    document.getElementById('profile-name').textContent  = name;
+    document.getElementById('profile-email').textContent = user.email || '';
+    document.getElementById('profile-full-name').textContent = name;
+    document.getElementById('profile-email-big').textContent = user.email || '';
+    document.getElementById('profile-avatar-big').textContent = initials;
+    document.getElementById('profile-roles').textContent = (user.roles || []).join(', ');
+}
+
+function api(path) {
+    return fetch(`${API_BASE}${path}`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+}
+
+async function fetchDashboardData() {
+    const [bookingsRes, notifsRes, reviewsRes] = await Promise.all([
+        api('/bookings/my').catch(() => ({ data: [] })),
+        api('/notifications').catch(() => ({ data: [] })),
+        api('/reviews/my').catch(() => ({ data: [] })),
+    ]);
+
+    const bookings      = bookingsRes.data || [];
+    const notifications = notifsRes.data   || [];
+    const reviews       = reviewsRes.data  || [];
+    allBookingsCache    = bookings;
+
+    const upcoming      = bookings.filter(b => b.status === 'CONFIRMED').length;
+    const unread        = notifications.filter(n => !n.read).length;
+
+    document.getElementById('stat-bookings').textContent  = bookings.length;
+    document.getElementById('stat-upcoming').textContent  = upcoming;
+    document.getElementById('stat-notifs').textContent    = unread;
+    document.getElementById('stat-reviews').textContent   = reviews.length;
+    document.getElementById('notif-badge').textContent    = unread;
+
+    renderBookings(bookings);
+    renderNotifications(notifications);
+    renderReviews(reviews);
+    if (window.lucide) lucide.createIcons();
+}
+
+function renderBookings(list) {
+    const el = document.getElementById('bookings-list');
+    if (!list.length) { 
+        el.innerHTML = '<div style="background:#fff;padding:40px;border-radius:14px;border:1px solid #e2e8f0;text-align:center;"><p style="color:#64748b;font-size:1.05rem;">No bookings yet.</p><button class="btn-primary" style="margin-top:16px;" onclick="window.location.href=\'index.html\'"><i data-lucide="search"></i> Book your first trip!</button></div>'; 
+        return; 
+    }
+    
+    el.innerHTML = list.map(b => `
+        <div class="booking-card-item">
+            <div class="booking-card-main">
+                <div class="route-title">
+                    <span class="city-name">${b.source}</span>
+                    <i data-lucide="arrow-right" class="route-arrow-icon"></i>
+                    <span class="city-name">${b.destination}</span>
+                </div>
+                <div class="booking-meta-grid">
+                    <div class="meta-item">
+                        <i data-lucide="calendar"></i>
+                        <span>${b.departureTime ? new Date(b.departureTime).toLocaleDateString('en-LK', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i data-lucide="clock"></i>
+                        <span>${b.departureTime ? new Date(b.departureTime).toLocaleTimeString('en-LK', { hour: '2-digit', minute: '2-digit' }) : '—'}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i data-lucide="armchair"></i>
+                        <strong>Seats: ${(b.seatNumbers||[]).join(', ') || '—'}</strong>
+                    </div>
+                    <div class="meta-item">
+                        <i data-lucide="user"></i>
+                        <span>${b.passengerName || '—'}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i data-lucide="bus"></i>
+                        <span>${b.busName || 'GoBus Express'} (${b.busNumber || 'AC Luxury'})</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="booking-card-right">
+                <span class="status-badge status-${(b.status||'').toLowerCase()}">${b.status}</span>
+                <strong class="total-price">Rs. ${Number(b.totalAmount||0).toLocaleString()}</strong>
+                
+                <div class="booking-card-actions">
+                    <button class="btn-ticket-view" onclick="viewETicket(${b.id})">
+                        <i data-lucide="ticket"></i> View / Print E-Ticket
+                    </button>
+                    ${b.status === 'CONFIRMED' ? `
+                        <button class="btn-booking-cancel" onclick="cancelBooking(${b.id})">
+                            <i data-lucide="ban"></i> Cancel Booking
+                        </button>` : ''}
+                </div>
+            </div>
+        </div>`).join('');
+        
+    if (window.lucide) lucide.createIcons();
+}
+
+// ── E-Ticket Generation & Display ─────────────────────────────────────────────
+function viewETicket(bookingId) {
+    const booking = allBookingsCache.find(b => b.id === bookingId);
+    if (!booking) {
+        alert('Booking details not found');
+        return;
+    }
+
+    const depDate = booking.departureTime ? new Date(booking.departureTime) : new Date();
+    const arrDate = booking.arrivalTime ? new Date(booking.arrivalTime) : new Date(depDate.getTime() + 4 * 3600000);
+    const bookDate = booking.bookingDate ? new Date(booking.bookingDate) : new Date();
+
+    document.getElementById('t-booking-id').textContent = `#GB-BKG-${String(booking.id).padStart(5, '0')}`;
+    document.getElementById('t-status').textContent = booking.status || 'CONFIRMED';
+    document.getElementById('t-source').textContent = (booking.source || 'COLOMBO').toUpperCase();
+    document.getElementById('t-destination').textContent = (booking.destination || 'KANDY').toUpperCase();
+    
+    document.getElementById('t-dep-time').textContent = depDate.toLocaleTimeString('en-LK', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('t-dep-date').textContent = depDate.toLocaleDateString('en-LK', { day: 'numeric', month: 'short', year: 'numeric' });
+    
+    document.getElementById('t-arr-time').textContent = arrDate.toLocaleTimeString('en-LK', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('t-arr-date').textContent = arrDate.toLocaleDateString('en-LK', { day: 'numeric', month: 'short', year: 'numeric' });
+    
+    document.getElementById('t-bus-type').textContent = `${booking.busName || 'GoBus Express'} · Super Luxury`;
+    document.getElementById('t-passenger-name').textContent = booking.passengerName || user.fullName || user.username || 'Passenger';
+    document.getElementById('t-passenger-nic').textContent = booking.passengerNic || '—';
+    document.getElementById('t-seat-numbers').textContent = (booking.seatNumbers || []).map(s => `Seat ${s}`).join(', ') || 'Seat Assigned';
+    document.getElementById('t-bus-number').textContent = booking.busNumber || 'ND-8821';
+    document.getElementById('t-amount').textContent = `Rs. ${Number(booking.totalAmount || 0).toLocaleString()}`;
+    document.getElementById('t-booking-date').textContent = bookDate.toLocaleDateString('en-LK', { day: 'numeric', month: 'short', year: 'numeric' });
+
+    // Dynamic QR code
+    const qrData = encodeURIComponent(`GoBus-Ticket|ID:${booking.id}|Route:${booking.source}->${booking.destination}|Passenger:${booking.passengerName}|Seats:${(booking.seatNumbers||[]).join(',')}`);
+    document.getElementById('t-qr-code').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`;
+    document.getElementById('t-barcode-str').textContent = `GB-${String(booking.id).padStart(4, '0')}-${booking.passengerNic ? booking.passengerNic.slice(-4) : '2026'}`;
+
+    const modal = document.getElementById('ticket-modal');
+    modal.style.display = 'flex';
+    if (window.lucide) lucide.createIcons();
+}
+
+function closeETicketModal() {
+    document.getElementById('ticket-modal').style.display = 'none';
+}
+
+function printETicket() {
+    window.print();
+}
+
+function downloadETicketPDF() {
+    const element = document.getElementById('printable-ticket');
+    const bookingId = document.getElementById('t-booking-id').textContent.replace('#', '');
+    
+    const opt = {
+        margin:       [10, 10, 10, 10],
+        filename:     `GoBus_Ticket_${bookingId}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    if (window.html2pdf) {
+        html2pdf().set(opt).from(element).save();
+    } else {
+        window.print();
+    }
+}
+
+async function cancelBooking(id) {
+    const reason = prompt('Please enter cancellation reason:', 'Change of travel plans');
+    if (!reason) return;
+    try {
+        const res = await fetch(`${API_BASE}/cancellations`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ bookingId: id, reason })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+            alert(`Booking #${id} cancelled. Refund amount: Rs. ${data.data.refundAmount}`);
+            fetchDashboardData();
+        } else {
+            alert(data.message || 'Cancellation failed.');
+        }
+    } catch(err) {
+        alert('Cancellation error: ' + err.message);
+    }
+}
+
+function renderNotifications(list) {
+    const el = document.getElementById('notifications-list');
+    if (!list.length) { el.innerHTML = '<p style="color:#64748b;padding:20px 0">No notifications yet.</p>'; return; }
+    el.innerHTML = list.map(n => `
+        <div class="notif-row ${n.read ? '' : 'unread'}" data-id="${n.id}">
+            <span class="notif-dot"></span>
+            <div>
+                <p>${n.message}</p>
+                <small>${n.createdAt ? new Date(n.createdAt).toLocaleString('en-LK') : ''}</small>
+            </div>
+            ${!n.read ? `<button onclick="markRead(${n.id}, this)">Mark read</button>` : ''}
+        </div>`).join('');
+}
+
+function renderReviews(list) {
+    const el = document.getElementById('reviews-list');
+    if (!list.length) { el.innerHTML = '<p style="color:#64748b;padding:20px 0">You haven\'t written any reviews yet.</p>'; return; }
+    el.innerHTML = list.map(r => `
+        <div class="review-card-item">
+            <div class="review-header">
+                <strong>${r.routeSummary}</strong>
+                <span class="star-rating">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)} (${r.rating}/5)</span>
+            </div>
+            <p class="review-comment">${r.comment}</p>
+            <small class="review-date">${r.createdAt ? new Date(r.createdAt).toLocaleString('en-LK') : ''}</small>
+        </div>`).join('');
+}
+
+async function markAllRead() {
+    await fetch(`${API_BASE}/notifications/mark-all-read`, { method: 'PATCH', headers: { 'Authorization': `Bearer ${token}` } });
+    fetchDashboardData();
+}
+
+async function markRead(id, btn) {
+    await fetch(`${API_BASE}/notifications/${id}/read`, { method: 'PATCH', headers: { 'Authorization': `Bearer ${token}` } });
+    btn.closest('.notif-row').classList.remove('unread');
+    btn.remove();
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+function switchSection(id) {
+    document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+    document.querySelector(`.nav-link[data-section="${id}"]`)?.classList.add('active');
+    document.getElementById(id)?.classList.add('active');
+    const titles = { dashboard:'Dashboard', bookings:'My Bookings & E-Tickets', notifications:'Notifications', reviews:'My Reviews', profile:'Profile' };
+    document.getElementById('section-title').textContent = titles[id] || 'Dashboard';
+}
+
+function setupNavigation() {
+    document.querySelectorAll('.nav-link[data-section]').forEach(item => {
+        item.addEventListener('click', e => { e.preventDefault(); switchSection(item.dataset.section); });
+    });
+}
+
+function setupLogout() {
+    const logout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.href = 'login.html'; };
+    document.getElementById('dd-logout').addEventListener('click', logout);
+}
+
+function setupSidebar() {
+    window.addEventListener('click', (e) => {
+        const dd = document.getElementById('user-dropdown');
+        if (dd && dd.style.display === 'block' && !e.target.closest('.user-menu')) {
+            dd.style.display = 'none';
+        }
+    });
+}
+
+function setupUserMenu() {
+    const toggle = document.getElementById('user-menu-toggle');
+    const dd     = document.getElementById('user-dropdown');
+    toggle.addEventListener('click', () => dd.style.display = dd.style.display === 'none' ? 'block' : 'none');
+    document.addEventListener('click', e => { if (!e.target.closest('.user-menu')) dd.style.display = 'none'; });
+}
+</script>
+
+<style>
+/* ==========================================================================
+   Booking Cards & Dashboard Components
+   ========================================================================== */
+.booking-card-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 18px;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);
+    transition: all 0.25s ease;
+    gap: 24px;
+}
+
+.booking-card-item:hover {
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.08);
+}
+
+.booking-card-main {
+    flex: 1;
+}
+
+.route-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.city-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.route-arrow-icon {
+    width: 20px;
+    height: 20px;
+    color: #ff5757;
+}
+
+.booking-meta-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 24px;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #475569;
+}
+
+.meta-item i {
+    width: 16px;
+    height: 16px;
+    color: #4f46e5;
+}
+
+.meta-item strong {
+    color: #0f172a;
+}
+
+.booking-card-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.total-price {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.booking-card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.btn-ticket-view {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    color: white;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    transition: all 0.25s ease;
+}
+
+.btn-ticket-view:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.45);
+}
+
+.btn-booking-cancel {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-booking-cancel:hover {
+    background: #fecaca;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.status-confirmed { background: #d1fae5; color: #065f46; }
+.status-cancelled { background: #fee2e2; color: #991b1b; }
+.status-pending   { background: #fef3c7; color: #92400e; }
+
+/* Review card */
+.review-card-item {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 14px;
+}
+.review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.star-rating { color: #f59e0b; font-weight: 700; }
+.review-comment { color: #475569; font-size: 0.95rem; line-height: 1.5; }
+.review-date { color: #94a3b8; font-size: 0.8rem; display: block; margin-top: 8px; }
+
+/* Notifications */
+.notif-row { display:flex; align-items:flex-start; gap:14px; padding:16px 20px; border-radius:12px; background:#fff; border:1px solid #e2e8f0; margin-bottom:12px; }
+.notif-row.unread { background:#eef2ff; border-color:#c7d2fe; }
+.notif-dot { width:10px; height:10px; border-radius:50%; background:#4f46e5; flex-shrink:0; margin-top:6px; box-shadow: 0 0 8px rgba(79, 70, 229, 0.6); }
+.notif-row p { margin:0; font-size:0.95rem; color: #1e293b; }
+.notif-row small { color:#64748b; font-size:0.8rem; margin-top:4px; display:block; }
+.notif-row button { margin-left:auto; padding:6px 12px; background:#4f46e5; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:0.8rem; font-weight:600; white-space:nowrap; }
+
+.profile-card { display:flex; align-items:center; gap:20px; padding:24px; background:#fff; border:1px solid #e2e8f0; border-radius:14px; max-width:480px; }
+.profile-avatar { width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg,#ff6b6b,#ff5757); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.6rem; font-weight:700; box-shadow: 0 4px 15px rgba(255, 87, 87, 0.4); }
+
+/* ==========================================================================
+   E-Ticket Modal Styles (Aesthetic Boarding Pass)
+   ========================================================================== */
+.ticket-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    overflow-y: auto;
+}
+
+.ticket-modal-wrapper {
+    max-width: 680px;
+    width: 100%;
+    margin: auto;
+}
+
+.ticket-modal-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0f172a;
+    padding: 14px 20px;
+    border-radius: 16px 16px 0 0;
+    color: white;
+}
+
+.ticket-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #e2e8f0;
+}
+
+.ticket-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-ticket-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.btn-print {
+    background: #38bdf8;
+    color: #0c4a6e;
+}
+.btn-print:hover { background: #7dd3fc; }
+
+.btn-download {
+    background: #34d399;
+    color: #064e3b;
+}
+.btn-download:hover { background: #6ee7b7; }
+
+.btn-ticket-close {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+.btn-ticket-close:hover { background: rgba(255, 255, 255, 0.3); }
+
+/* The E-Ticket Boarding Pass */
+.e-ticket-card {
+    background: #ffffff;
+    border-radius: 0 0 18px 18px;
+    padding: 32px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+    color: #0f172a;
+    position: relative;
+    border: 1px solid #e2e8f0;
+}
+
+.ticket-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.ticket-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ticket-brand-mark {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff5757 100%);
+    color: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.ticket-brand-name {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #0f172a;
+}
+.ticket-brand-name span { color: #ff5757; }
+.ticket-brand-sub { font-size: 0.78rem; color: #64748b; font-weight: 500; }
+
+.ticket-ref-box {
+    text-align: right;
+}
+.ticket-ref-label { font-size: 0.72rem; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px; display: block; }
+.ticket-ref-val { font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; color: #4f46e5; display: block; margin: 2px 0 4px; }
+.ticket-status-pill { background: #d1fae5; color: #065f46; font-size: 0.72rem; font-weight: 800; padding: 3px 9px; border-radius: 99px; letter-spacing: 0.5px; }
+
+/* Journey Banner */
+.ticket-journey-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    border: 1px solid #e0e7ff;
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin: 22px 0;
+}
+
+.journey-node { flex: 1; }
+.node-label { font-size: 0.72rem; font-weight: 800; color: #6366f1; letter-spacing: 1px; display: block; }
+.node-city { font-family: 'Space Grotesk', sans-serif; font-size: 1.6rem; font-weight: 700; color: #0f172a; margin: 4px 0 2px; }
+.node-time { font-size: 1.15rem; font-weight: 700; color: #1e293b; }
+.node-date { font-size: 0.8rem; color: #64748b; font-weight: 500; }
+
+.journey-route-visual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 16px;
+}
+.route-line-icon {
+    width: 36px;
+    height: 36px;
+    background: #4f46e5;
+    color: white;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4);
+}
+.route-duration { font-size: 0.78rem; font-weight: 600; color: #64748b; margin-top: 6px; }
+
+/* Ticket Details Grid */
+.ticket-details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px 20px;
+    margin-bottom: 22px;
+}
+
+.t-cell { display: flex; flex-direction: column; gap: 4px; }
+.t-label { font-size: 0.72rem; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px; text-transform: uppercase; }
+.t-val { font-size: 1rem; color: #0f172a; font-weight: 600; }
+.highlight-seat { color: #ff5757; font-weight: 700; font-size: 1.1rem; }
+.price-val { color: #059669; font-size: 1.15rem; font-weight: 700; }
+
+/* Perforated Divider */
+.ticket-perforated-divider {
+    position: relative;
+    margin: 20px -32px;
+    display: flex;
+    align-items: center;
+}
+.dashed-line { flex: 1; border-top: 2px dashed #cbd5e1; }
+.notch { width: 24px; height: 24px; background: rgba(15, 23, 42, 0.75); border-radius: 50%; }
+.notch-left { margin-left: -12px; }
+.notch-right { margin-right: -12px; }
+
+/* Ticket Footer */
+.ticket-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    gap: 20px;
+}
+
+.ticket-qr-section {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.ticket-qr-img { width: 90px; height: 90px; border-radius: 8px; border: 1px solid #e2e8f0; padding: 4px; background: #fff; }
+.qr-desc { max-width: 200px; }
+.qr-title { font-size: 0.8rem; font-weight: 800; color: #0f172a; letter-spacing: 0.5px; display: block; }
+.qr-desc small { font-size: 0.72rem; color: #64748b; line-height: 1.3; display: block; margin-top: 2px; }
+
+.ticket-barcode-section {
+    text-align: right;
+}
+.barcode-graphic {
+    width: 170px;
+    height: 44px;
+    background: repeating-linear-gradient(90deg, #0f172a 0px, #0f172a 2px, transparent 2px, transparent 4px, #0f172a 4px, #0f172a 7px, transparent 7px, transparent 9px);
+    margin-left: auto;
+}
+.barcode-num { font-family: monospace; font-size: 0.78rem; color: #64748b; letter-spacing: 2px; margin-top: 4px; }
+
+.ticket-notice {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #f1f5f9;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    line-height: 1.4;
+}
+
+/* ==========================================================================
+   PRINT MEDIA STYLES (@media print)
+   ========================================================================== */
+@media print {
+    body {
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .no-print, .user-navbar, .page-header, .stats-grid, .quick-actions, .section-header, #bookings-list, .ticket-modal-bar {
+        display: none !important;
+    }
+    .ticket-modal-backdrop {
+        position: static !important;
+        background: none !important;
+        padding: 0 !important;
+        backdrop-filter: none !important;
+    }
+    .ticket-modal-wrapper {
+        max-width: 100% !important;
+        margin: 0 !important;
+    }
+    .e-ticket-card {
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: 2px solid #0f172a !important;
+        padding: 24px !important;
+        page-break-inside: avoid;
+    }
+    .notch {
+        display: none !important;
+    }
+    .ticket-perforated-divider {
+        margin: 16px 0 !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .booking-card-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .booking-card-right {
+        align-items: flex-start;
+        width: 100%;
+        border-top: 1px solid #f1f5f9;
+        padding-top: 14px;
+    }
+    .booking-card-actions {
+        flex-direction: row;
+        width: 100%;
+    }
+    .ticket-details-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .ticket-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .ticket-barcode-section {
+        text-align: left;
+    }
+    .barcode-graphic {
+        margin-left: 0;
+    }
+}
+</style>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | GoBus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/auth.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="auth-container">
+    <div class="auth-illustration">
+        <div class="illustration-content">
+            <h2>🚌 Join GoBus</h2>
+            <p>Create your free account and start booking intercity bus journeys across Sri Lanka.</p>
+            <div class="features-list">
+                <div class="feature"><i data-lucide="check-circle"></i> Free to register</div>
+                <div class="feature"><i data-lucide="history"></i> Booking history</div>
+                <div class="feature"><i data-lucide="star"></i> Leave route reviews</div>
+                <div class="feature"><i data-lucide="bell"></i> Booking notifications</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-box">
+        <div class="auth-header">
+            <a class="brand" href="index.html">
+                <span class="brand-mark">G</span>
+                <span>Go<span>Bus</span></span>
+            </a>
+            <h1 class="auth-subtitle">Create your account</h1>
+        </div>
+
+        <form class="auth-form" id="register-form" novalidate>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input id="username" type="text" placeholder="e.g. dinesh99" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input id="fullName" type="text" placeholder="e.g. Dinesh Perera" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email address</label>
+                <div class="input-wrapper">
+                    <i data-lucide="mail"></i>
+                    <input id="email" type="email" placeholder="you@example.com" required autocomplete="email">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone number</label>
+                <div class="input-wrapper">
+                    <i data-lucide="phone"></i>
+                    <input id="phone" type="tel" placeholder="+94771234567" required autocomplete="tel">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input id="password" type="password" placeholder="Min 6 characters" required autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Confirm Password</label>
+                    <input id="confirm-password" type="password" placeholder="Repeat password" required autocomplete="new-password">
+                </div>
+            </div>
+
+            <label class="checkbox-group">
+                <input type="checkbox" required>
+                I agree to the <a href="#">Terms &amp; Conditions</a>
+            </label>
+
+            <button class="btn-primary" type="submit">
+                <i data-lucide="user-plus"></i> Create account
+            </button>
+
+            <div id="error-message"   class="error-message"   style="display:none;"></div>
+            <div id="success-message" class="success-message" style="display:none;"></div>
+        </form>
+
+        <p class="auth-footer">
+            Already have an account? <a href="login.html">Sign in</a>
+        </p>
+    </div>
+</div>
+<script src="js/auth.js"></script>
+</body>
+</html>
