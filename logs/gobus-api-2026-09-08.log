@@ -1,0 +1,158 @@
+2026-09-08 09:42:18 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2026-09-08 09:42:18 [main] INFO  B.ijse.IjseApplication - Starting IjseApplication using Java 21.0.11 with PID 11812 (C:\Users\Dinesh\Downloads\ijse\ijse\target\classes started by Dinesh in C:\Users\Dinesh\Downloads\ijse\ijse)
+2026-09-08 09:42:18 [main] DEBUG B.ijse.IjseApplication - Running with Spring Boot v3.3.5, Spring v6.1.14
+2026-09-08 09:42:18 [main] INFO  B.ijse.IjseApplication - No active profile set, falling back to 1 default profile: "default"
+2026-09-08 09:42:20 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-09-08 09:42:20 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 217 ms. Found 16 JPA repository interfaces.
+2026-09-08 09:42:21 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-09-08 09:42:22 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-09-08 09:42:22 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-09-08 09:42:22 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-09-08 09:42:22 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-09-08 09:42:22 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3961 ms
+2026-09-08 09:42:22 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-09-08 09:42:22 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.3.Final
+2026-09-08 09:42:22 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-09-08 09:42:23 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-09-08 09:42:23 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-09-08 09:42:24 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@433b1597
+2026-09-08 09:42:24 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-09-08 09:42:24 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-09-08 09:42:28 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-09-08 09:42:28 [main] DEBUG org.hibernate.SQL - 
+    alter table bookings 
+       modify column status enum ('CANCELLED','COMPLETED','CONFIRMED','NO_SHOW','PENDING') not null
+2026-09-08 09:42:28 [main] DEBUG org.hibernate.SQL - 
+    alter table bus_seats 
+       modify column seat_type enum ('AISLE','LOWER_BERTH','MIDDLE','UPPER_BERTH','WINDOW') not null
+2026-09-08 09:42:28 [main] DEBUG org.hibernate.SQL - 
+    alter table buses 
+       modify column bus_type enum ('AC_SEATER','AC_SLEEPER','LUXURY','MINI','NON_AC_SEATER','NON_AC_SLEEPER') not null
+2026-09-08 09:42:28 [main] DEBUG org.hibernate.SQL - 
+    alter table cancellations 
+       modify column status enum ('APPROVED','REFUND_COMPLETED','REFUND_INITIATED','REJECTED','REQUESTED') not null
+2026-09-08 09:42:28 [main] DEBUG org.hibernate.SQL - 
+    alter table notifications 
+       modify column type enum ('BOOKING_CANCELLED','BOOKING_CONFIRMED','GENERAL','PAYMENT_FAILED','PAYMENT_SUCCESS','REFUND_INITIATED','SCHEDULE_CHANGE') not null
+2026-09-08 09:42:28 [main] DEBUG org.hibernate.SQL - 
+    alter table payments 
+       modify column method enum ('CASH','CREDIT_CARD','DEBIT_CARD','NET_BANKING','UPI','WALLET') not null
+2026-09-08 09:42:28 [main] DEBUG org.hibernate.SQL - 
+    alter table payments 
+       modify column status enum ('FAILED','PARTIALLY_REFUNDED','PENDING','REFUNDED','SUCCESS') not null
+2026-09-08 09:42:28 [main] DEBUG org.hibernate.SQL - 
+    alter table roles 
+       modify column name enum ('ROLE_ADMIN','ROLE_GUEST','ROLE_USER') not null
+2026-09-08 09:42:29 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-09-08 09:42:30 [main] DEBUG B.i.security.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
+2026-09-08 09:42:30 [main] INFO  o.s.s.c.a.a.c.InitializeAuthenticationProviderBeanManagerConfigurer$InitializeAuthenticationProviderManagerConfigurer - Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
+2026-09-08 09:42:30 [main] WARN  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used for username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider.
+2026-09-08 09:42:30 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-09-08 09:42:32 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+2026-09-08 09:42:33 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-09-08 09:42:33 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-09-08 09:42:33 [main] INFO  B.ijse.IjseApplication - Started IjseApplication in 17.338 seconds (process running for 18.335)
+2026-09-08 09:42:33 [main] INFO  B.ijse.DataInitializer - === GoBus API – Data Initialization ===
+2026-09-08 09:42:34 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-09-08 09:42:34 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-09-08 09:42:34 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-09-08 09:42:34 [main] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.username=? 
+    limit
+        ?
+2026-09-08 09:42:34 [main] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.username=? 
+    limit
+        ?
+2026-09-08 09:42:34 [main] INFO  B.ijse.DataInitializer - === Data Initialization Complete ===
+2026-09-08 09:43:31 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-08 09:43:31 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-09-08 09:43:31 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 6 ms
+2026-09-08 09:43:31 [http-nio-8080-exec-1] INFO  B.ijse.Controller.AuthController - Login request for: admin
+2026-09-08 09:43:32 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.username=?
+2026-09-08 09:43:32 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-08 09:43:32 [http-nio-8080-exec-1] DEBUG B.i.security.UserDetailsServiceImpl - Loaded user: admin with roles: [Bus_Ticket_booking.ijse.entity.Role@3c, Bus_Ticket_booking.ijse.entity.Role@3d]
+2026-09-08 09:43:33 [http-nio-8080-exec-1] INFO  B.ijse.Service.AuthService - User logged in: admin
+2026-09-08 09:45:23 [http-nio-8080-exec-1] INFO  o.s.api.AbstractOpenApiResource - Init duration for springdoc-openapi is: 2875 ms
+2026-09-08 09:54:54 [http-nio-8080-exec-6] INFO  B.ijse.Controller.AuthController - Login request for: admin
+2026-09-08 09:54:54 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.username=?
+2026-09-08 09:54:54 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-08 09:54:55 [http-nio-8080-exec-6] DEBUG B.i.security.UserDetailsServiceImpl - Loaded user: admin with roles: [Bus_Ticket_booking.ijse.entity.Role@3c, Bus_Ticket_booking.ijse.entity.Role@3d]
+2026-09-08 09:54:56 [http-nio-8080-exec-6] INFO  B.ijse.Service.AuthService - User logged in: admin
