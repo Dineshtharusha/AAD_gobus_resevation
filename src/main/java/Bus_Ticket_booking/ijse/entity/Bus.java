@@ -38,6 +38,10 @@ public class Bus {
     @Builder.Default
     private boolean active = true;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
     @OneToMany(mappedBy = "bus", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     private List<BusSeat> seats = new ArrayList<>();
