@@ -16,7 +16,7 @@
             <h2>🚌 GoBus</h2>
             <p>Sri Lanka's smarter bus booking platform. Travel comfortably across the island.</p>
             <div class="features-list">
-                <div class="feature"><i data-lucide="shield-check"></i> Secure payments</div>
+                <div class="feature"><i data-lucide="shield-check"></i> Secure payments &amp; accounts</div>
                 <div class="feature"><i data-lucide="ticket-check"></i> Instant e-tickets</div>
                 <div class="feature"><i data-lucide="armchair"></i> Live seat availability</div>
                 <div class="feature"><i data-lucide="bell"></i> Real-time notifications</div>
@@ -30,36 +30,44 @@
                 <span class="brand-mark">G</span>
                 <span>Go<span>Bus</span></span>
             </a>
-            <h1 class="auth-subtitle">Welcome back</h1>
+            <h1 class="auth-subtitle" data-i18n="auth.welcomeBack">Welcome back</h1>
         </div>
 
         <form class="auth-form" id="login-form" novalidate>
             <div class="form-group">
-                <label for="username">Username or Email</label>
+                <label for="username" data-i18n="auth.username">Username or Email</label>
                 <div class="input-wrapper">
                     <i data-lucide="user"></i>
-                    <input id="username" type="text" placeholder="Enter your username or email" required autocomplete="username">
+                    <input id="username" type="text" placeholder="Enter your username or email" data-i18n-placeholder="auth.usernamePlaceholder" required autocomplete="username">
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="password">Password</label>
+                <label for="password" data-i18n="auth.password">Password</label>
                 <div class="input-wrapper">
                     <i data-lucide="lock"></i>
-                    <input id="password" type="password" placeholder="Enter your password" required autocomplete="current-password">
+                    <input id="password" type="password" placeholder="Enter your password" data-i18n-placeholder="auth.passwordPlaceholder" required autocomplete="current-password">
                 </div>
             </div>
 
             <div class="form-options">
                 <label class="remember-me">
-                    <input type="checkbox" name="remember"> Remember me
+                    <input type="checkbox" name="remember"> <span data-i18n="auth.remember">Remember me</span>
                 </label>
-                <a class="forgot-password" href="#">Forgot password?</a>
+                <a class="forgot-password" href="#" id="link-forgot-password" data-i18n="auth.forgot">Forgot password?</a>
             </div>
 
             <button class="btn-primary" type="submit">
-                <i data-lucide="log-in"></i> Sign in
+                <i data-lucide="log-in"></i> <span data-i18n="auth.signIn">Sign in</span>
             </button>
+
+            <!-- Unverified email prompt helper -->
+            <div id="unverified-banner" class="error-message" style="display:none;background:#fffbeb;color:#b45309;border:1px solid #fde68a;text-align:center;">
+                <p style="margin-bottom:8px;">⚠️ Your account email is not verified yet.</p>
+                <button type="button" id="btn-verify-now" class="btn-secondary" style="padding:6px 14px;font-size:0.85rem;display:inline-block;width:auto;">
+                    Enter verification code
+                </button>
+            </div>
 
             <div id="error-message"   class="error-message"   style="display:none;"></div>
             <div id="success-message" class="success-message" style="display:none;"></div>
@@ -74,11 +82,94 @@
         <p class="auth-footer">
             Don't have an account? <a href="register.html">Create one free</a>
         </p>
-        <p style="margin-top:12px;font-size:0.8rem;color:#94a3b8;text-align:center;">
-            
-        </p>
     </div>
 </div>
+
+<!-- ========================================================================
+     Forgot Password Modal
+     ======================================================================== -->
+<div class="modal-overlay" id="forgot-password-modal">
+    <div class="modal-card">
+        <button class="modal-close" id="fp-modal-close" type="button" title="Close">
+            <i data-lucide="x"></i>
+        </button>
+
+        <div class="modal-header">
+            <div class="verification-icon-badge" style="width:56px;height:56px;margin-bottom:12px;">
+                <i data-lucide="key-round" style="width:28px;height:28px;"></i>
+            </div>
+            <h2 id="fp-modal-title">Reset Password</h2>
+            <p id="fp-modal-subtitle">We will send a 6-digit verification code to your email</p>
+        </div>
+
+        <div class="step-indicator">
+            <div class="step-dot active" id="fp-dot-1"></div>
+            <div class="step-dot" id="fp-dot-2"></div>
+        </div>
+
+        <!-- Step 1: Enter Email -->
+        <form class="modal-step active" id="fp-step-1">
+            <div class="form-group">
+                <label for="fp-email">Account Email Address</label>
+                <div class="input-wrapper">
+                    <i data-lucide="mail"></i>
+                    <input id="fp-email" type="email" placeholder="you@example.com" required autocomplete="email">
+                </div>
+            </div>
+
+            <button class="btn-primary" type="submit" id="btn-send-reset-code">
+                <i data-lucide="send"></i> Send Reset Code
+            </button>
+        </form>
+
+        <!-- Step 2: Enter OTP & New Password -->
+        <form class="modal-step" id="fp-step-2">
+            <p style="font-size:0.9rem;color:#64748b;text-align:center;margin-bottom:12px;">
+                Code sent to <strong id="fp-email-display">user@example.com</strong>
+            </p>
+
+            <div class="otp-boxes" id="fp-otp-boxes">
+                <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*">
+                <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*">
+                <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*">
+                <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*">
+                <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*">
+                <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*">
+            </div>
+
+            <div class="form-group">
+                <label for="fp-new-password">New Password</label>
+                <div class="input-wrapper">
+                    <i data-lucide="lock"></i>
+                    <input id="fp-new-password" type="password" placeholder="Min 8 characters" required autocomplete="new-password">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="fp-confirm-password">Confirm New Password</label>
+                <div class="input-wrapper">
+                    <i data-lucide="lock"></i>
+                    <input id="fp-confirm-password" type="password" placeholder="Repeat new password" required autocomplete="new-password">
+                </div>
+            </div>
+
+            <button class="btn-primary" type="submit" id="btn-submit-reset-password">
+                <i data-lucide="check"></i> Update Password
+            </button>
+
+            <div class="resend-row" style="text-align:center;">
+                Didn't get the code? 
+                <button class="resend-btn" id="btn-resend-fp-otp" type="button">Resend</button>
+                <span id="fp-resend-timer" style="display:none;color:#64748b;margin-left:4px;">(in <span id="fp-countdown">60</span>s)</span>
+            </div>
+        </form>
+
+        <div id="fp-error-msg"   class="error-message"   style="display:none;margin-top:16px;"></div>
+        <div id="fp-success-msg" class="success-message" style="display:none;margin-top:16px;"></div>
+    </div>
+</div>
+
+<script src="js/i18n.js"></script>
 <script src="js/auth.js"></script>
 </body>
 </html>
