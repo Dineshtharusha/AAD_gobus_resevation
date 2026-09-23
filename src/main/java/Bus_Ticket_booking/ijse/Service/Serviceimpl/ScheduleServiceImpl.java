@@ -145,6 +145,14 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<ScheduleResponse> getSchedulesForOwner(String username) {
+        return scheduleRepository.findActiveSchedulesByOwner(username).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public ScheduleResponse toResponse(Schedule s) {
         return ScheduleResponse.builder()
                 .id(s.getId())
