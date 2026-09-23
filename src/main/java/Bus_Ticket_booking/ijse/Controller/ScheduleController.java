@@ -14,6 +14,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -32,6 +34,16 @@ public class ScheduleController {
     @Operation(summary = "Get all active schedules with available seats (public)")
     public ResponseEntity<ApiResponse<List<ScheduleResponse>>> getAllSchedules() {
         return ResponseEntity.ok(ApiResponse.success(scheduleService.getAllSchedules()));
+    }
+
+    @GetMapping("/owner")
+    @PreAuthorize("hasAnyRole('BUS_OWNER', 'ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Get schedules for the authenticated bus owner's fleet only")
+    public ResponseEntity<ApiResponse<List<ScheduleResponse>>> getOwnerSchedules(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(ApiResponse.success(
+                scheduleService.getSchedulesForOwner(userDetails.getUsername())));
     }
 
     @GetMapping("/{id}")
@@ -85,3 +97,4 @@ public class ScheduleController {
         return ResponseEntity.ok(ApiResponse.success(null, "Schedule deactivated"));
     }
 }
+
