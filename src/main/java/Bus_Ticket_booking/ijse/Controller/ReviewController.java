@@ -56,11 +56,13 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Delete a review (ADMIN only)")
-    public ResponseEntity<ApiResponse<Void>> deleteReview(@PathVariable Long id) {
-        reviewService.deleteReview(id);
+    @Operation(summary = "Delete a review (Owner or ADMIN)")
+    public ResponseEntity<ApiResponse<Void>> deleteReview(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        reviewService.deleteReview(id, userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.success(null, "Review deleted"));
     }
 }
