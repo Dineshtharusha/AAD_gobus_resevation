@@ -37,6 +37,14 @@ public class BusServiceImpl implements BusService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<BusResponse> getMyBuses(String username) {
+        return busRepository.findByOwnerUsernameAndActiveTrue(username).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public BusResponse getBusById(Long id) {
         Bus bus = busRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Bus", "id", id));
