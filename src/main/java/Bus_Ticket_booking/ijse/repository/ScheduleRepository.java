@@ -25,4 +25,9 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
     @Query("SELECT s FROM Schedule s WHERE s.active = true AND s.availableSeats > 0 ORDER BY s.departureTime")
     List<Schedule> findAllActiveWithSeats();
+
+    boolean existsByRouteIdAndBusIdAndDepartureTime(Long routeId, Long busId, LocalDateTime departureTime);
+
+    @Query("SELECT s FROM Schedule s WHERE s.bus.owner.username = :username AND s.active = true ORDER BY s.departureTime")
+    List<Schedule> findActiveSchedulesByOwner(@Param("username") String username);
 }
