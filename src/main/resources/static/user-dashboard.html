@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="css/dashboard.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="js/qrcode.min.js"></script>
 </head>
 <body>
     <!-- Top Navigation Bar -->
@@ -103,8 +104,14 @@
 
         <!-- REVIEWS SECTION -->
         <section class="content-section" id="reviews">
-            <div class="section-header">
-                <h2>My Reviews</h2>
+            <div class="section-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <div>
+                    <h2>My Reviews &amp; Ratings</h2>
+                    <p style="color:#64748b;font-size:0.9rem;margin-top:2px;">Rate your travel experience and help other passengers choose the best bus routes</p>
+                </div>
+                <button class="btn-primary" onclick="openNewReviewModal()" style="display:inline-flex;align-items:center;gap:8px;">
+                    <i data-lucide="plus-circle"></i> Write a Review
+                </button>
             </div>
             <div id="reviews-list"><p style="color:#64748b;">Loading reviews…</p></div>
         </section>
@@ -227,10 +234,10 @@
                 <!-- Ticket Footer & QR Validation -->
                 <div class="ticket-footer">
                     <div class="ticket-qr-section">
-                        <img id="t-qr-code" src="" alt="Ticket QR Code" class="ticket-qr-img">
+                        <div id="ticket-qrcode" style="background:#fff;padding:6px;border-radius:10px;border:1px solid #e2e8f0;display:inline-flex;align-items:center;justify-content:center;min-width:132px;min-height:132px;"></div>
                         <div class="qr-desc">
                             <span class="qr-title">SCAN TO VERIFY</span>
-                            <small>Present this QR code to the bus conductor at boarding gate.</small>
+                            <small>Present this real QR code to the bus conductor at boarding gate.</small>
                         </div>
                     </div>
                     <div class="ticket-barcode-section">
@@ -244,6 +251,61 @@
                     <p><strong>Important Travel Notice:</strong> Please report to the departure terminal at least 15 minutes before the scheduled departure time with your National Identity Card (NIC) and this e-ticket. Tickets are non-transferable.</p>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- ==================== REVIEW & RATING MODAL ==================== -->
+    <div class="modal-backdrop" id="review-modal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+        <div style="background:#fff;border-radius:18px;width:100%;max-width:500px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);overflow:hidden;">
+            <div style="background:linear-gradient(135deg,#4f46e5,#3730a3);color:#fff;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <i data-lucide="star" style="width:24px;height:24px;color:#fde047;fill:#fde047;"></i>
+                    <h3 style="margin:0;font-size:1.15rem;font-weight:700;">Rate &amp; Review Route</h3>
+                </div>
+                <button type="button" onclick="closeReviewModal()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                    <i data-lucide="x" style="width:18px;height:18px;"></i>
+                </button>
+            </div>
+            <form id="review-form" style="padding:24px;">
+                <div id="review-route-static" style="display:none;margin-bottom:18px;padding:12px 16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+                    <small style="color:#64748b;font-weight:700;display:block;text-transform:uppercase;font-size:0.75rem;">Selected Route</small>
+                    <strong style="color:#1e293b;font-size:1.1rem;" id="review-route-name">Colombo ➔ Kandy</strong>
+                </div>
+
+                <div class="form-group" id="route-select-group" style="margin-bottom:18px;">
+                    <label style="display:block;font-size:0.88rem;font-weight:600;color:#334155;margin-bottom:6px;">Select Route</label>
+                    <select id="review-route-id" required style="width:100%;padding:10px 14px;border:1.5px solid #cbd5e1;border-radius:10px;font-size:0.95rem;background:#fff;font-family:inherit;">
+                        <option value="">Choose a route…</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom:20px;text-align:center;">
+                    <label style="display:block;font-size:0.88rem;font-weight:600;color:#334155;margin-bottom:8px;">Your Rating</label>
+                    <div id="star-rating-container" style="display:inline-flex;gap:8px;font-size:2.3rem;cursor:pointer;user-select:none;">
+                        <span class="star-picker-item" data-rating="1" onclick="setRating(1)">★</span>
+                        <span class="star-picker-item" data-rating="2" onclick="setRating(2)">★</span>
+                        <span class="star-picker-item" data-rating="3" onclick="setRating(3)">★</span>
+                        <span class="star-picker-item" data-rating="4" onclick="setRating(4)">★</span>
+                        <span class="star-picker-item" data-rating="5" onclick="setRating(5)">★</span>
+                    </div>
+                    <input type="hidden" id="review-rating-val" value="5" required>
+                    <p id="star-rating-text" style="font-size:0.9rem;color:#4f46e5;font-weight:700;margin-top:6px;">Excellent (5/5)</p>
+                </div>
+
+                <div class="form-group" style="margin-bottom:20px;">
+                    <label for="review-comment" style="display:block;font-size:0.88rem;font-weight:600;color:#334155;margin-bottom:6px;">Your Experience / Feedback</label>
+                    <textarea id="review-comment" rows="4" maxlength="1000" placeholder="How was your trip? Comment on the bus cleanliness, AC comfort, punctuality, and driving safety..." required style="width:100%;padding:12px;border:1.5px solid #cbd5e1;border-radius:10px;font-size:0.92rem;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
+                </div>
+
+                <div id="review-alert" style="display:none;padding:10px 14px;border-radius:8px;margin-bottom:16px;font-size:0.88rem;"></div>
+
+                <div style="display:flex;justify-content:flex-end;gap:10px;">
+                    <button type="button" onclick="closeReviewModal()" style="padding:10px 18px;border:1.5px solid #cbd5e1;background:#fff;border-radius:10px;font-weight:600;cursor:pointer;">Cancel</button>
+                    <button type="submit" id="btn-submit-review" style="padding:10px 22px;border:none;background:#4f46e5;color:#fff;border-radius:10px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+                        <i data-lucide="send"></i> Submit Review
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -300,7 +362,8 @@ async function fetchDashboardData() {
     const reviews       = reviewsRes.data  || [];
     allBookingsCache    = bookings;
 
-    const upcoming      = bookings.filter(b => b.status === 'CONFIRMED').length;
+    const now           = new Date();
+    const upcoming      = bookings.filter(b => b.status === 'CONFIRMED' && (!b.departureTime || new Date(b.departureTime) >= now)).length;
     const unread        = notifications.filter(n => !n.read).length;
 
     document.getElementById('stat-bookings').textContent  = bookings.length;
@@ -315,6 +378,22 @@ async function fetchDashboardData() {
     if (window.lucide) lucide.createIcons();
 }
 
+function getBusThumbnail(busName, id) {
+    const name = (busName || '').toLowerCase();
+    const busId = Math.abs(Number(id || 0));
+    if (name.includes('southern')) return 'images/buses/bus-southern-lines.jpg';
+    if (name.includes('lanka')) return 'images/buses/bus-express-lanka.jpg';
+    if (name.includes('superline') || name.includes('highway') || name.includes('cruiser')) return 'images/buses/bus-highway-superline.jpg';
+    if (name.includes('gobus')) return 'images/buses/bus-gobus-express.jpg';
+    const pool = [
+        'images/buses/bus-gobus-express.jpg',
+        'images/buses/bus-southern-lines.jpg',
+        'images/buses/bus-express-lanka.jpg',
+        'images/buses/bus-highway-superline.jpg'
+    ];
+    return pool[busId % pool.length];
+}
+
 function renderBookings(list) {
     const el = document.getElementById('bookings-list');
     if (!list.length) { 
@@ -324,6 +403,9 @@ function renderBookings(list) {
     
     el.innerHTML = list.map(b => `
         <div class="booking-card-item">
+            <div style="width:115px;height:84px;border-radius:12px;overflow:hidden;flex-shrink:0;box-shadow:0 4px 12px rgba(15,23,42,0.1);border:1px solid #e2e8f0;background:#0f172a;">
+                <img src="${getBusThumbnail(b.busName, b.id)}" alt="${b.busName || 'Luxury Bus'}" style="width:100%;height:100%;object-fit:cover;display:block;">
+            </div>
             <div class="booking-card-main">
                 <div class="route-title">
                     <span class="city-name">${b.source}</span>
@@ -362,6 +444,10 @@ function renderBookings(list) {
                     <button class="btn-ticket-view" onclick="viewETicket(${b.id})">
                         <i data-lucide="ticket"></i> View / Print E-Ticket
                     </button>
+                    ${b.routeId ? `
+                        <button class="btn-rate-review" onclick="openReviewModal(${b.routeId}, '${(b.source||'Colombo').replace(/'/g, "\\'")} ➔ ${(b.destination||'Destination').replace(/'/g, "\\'")}')">
+                            <i data-lucide="star"></i> Rate &amp; Review
+                        </button>` : ''}
                     ${b.status === 'CONFIRMED' ? `
                         <button class="btn-booking-cancel" onclick="cancelBooking(${b.id})">
                             <i data-lucide="ban"></i> Cancel Booking
@@ -404,9 +490,49 @@ function viewETicket(bookingId) {
     document.getElementById('t-amount').textContent = `Rs. ${Number(booking.totalAmount || 0).toLocaleString()}`;
     document.getElementById('t-booking-date').textContent = bookDate.toLocaleDateString('en-LK', { day: 'numeric', month: 'short', year: 'numeric' });
 
-    // Dynamic QR code
-    const qrData = encodeURIComponent(`GoBus-Ticket|ID:${booking.id}|Route:${booking.source}->${booking.destination}|Passenger:${booking.passengerName}|Seats:${(booking.seatNumbers||[]).join(',')}`);
-    document.getElementById('t-qr-code').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`;
+    // Generate Real QR code with complete verification details
+    const bookingRef = `#GB-BKG-${String(booking.id).padStart(5, '0')}`;
+    const qrRealText = [
+        `========================================`,
+        `   🚌 GOBUS SRI LANKA - BOARDING PASS`,
+        `========================================`,
+        `Ticket Ref   : ${bookingRef}`,
+        `Passenger    : ${booking.passengerName || user.fullName || user.username || 'Passenger'}`,
+        `NIC / ID     : ${booking.passengerNic || 'N/A'}`,
+        `Route        : ${(booking.source || 'COLOMBO').toUpperCase()} ➔ ${(booking.destination || 'KANDY').toUpperCase()}`,
+        `Coach / Bus  : ${booking.busName || 'GoBus Express'} (${booking.busNumber || 'ND-8821'})`,
+        `Departure    : ${depDate.toLocaleDateString('en-LK', { day:'numeric', month:'short', year:'numeric' })}, ${depDate.toLocaleTimeString('en-LK', { hour:'2-digit', minute:'2-digit' })}`,
+        `Arrival      : ${arrDate.toLocaleDateString('en-LK', { day:'numeric', month:'short', year:'numeric' })}, ${arrDate.toLocaleTimeString('en-LK', { hour:'2-digit', minute:'2-digit' })}`,
+        `Seat(s)      : ${(booking.seatNumbers || []).map(s => 'Seat ' + s).join(', ') || 'Assigned'}`,
+        `Total Fare   : Rs. ${Number(booking.totalAmount || 0).toLocaleString()} (PAID)`,
+        `Status       : VERIFIED & CONFIRMED`,
+        `Verify Online: ${window.location.origin}/booking-confirmation.html?ref=${encodeURIComponent(bookingRef)}`,
+        `========================================`
+    ].join('\n');
+
+    const qrContainer = document.getElementById('ticket-qrcode') || document.getElementById('t-qr-container');
+    if (qrContainer) {
+        qrContainer.innerHTML = '';
+        const seatStr = (booking.seatNumbers && booking.seatNumbers.length > 0)
+            ? booking.seatNumbers.join(', ')
+            : (booking.seatNumber || 'Assigned');
+
+        if (typeof QRCode !== 'undefined') {
+            new QRCode(qrContainer, {
+                text: JSON.stringify({
+                    bookingId: booking.id,
+                    bookingReference: bookingRef,
+                    passenger: booking.passengerName || (user ? user.fullName : 'Passenger'),
+                    seatNumber: seatStr
+                }),
+                width: 128,
+                height: 128,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+    }
     document.getElementById('t-barcode-str').textContent = `GB-${String(booking.id).padStart(4, '0')}-${booking.passengerNic ? booking.passengerNic.slice(-4) : '2026'}`;
 
     const modal = document.getElementById('ticket-modal');
@@ -478,17 +604,189 @@ function renderNotifications(list) {
 
 function renderReviews(list) {
     const el = document.getElementById('reviews-list');
-    if (!list.length) { el.innerHTML = '<p style="color:#64748b;padding:20px 0">You haven\'t written any reviews yet.</p>'; return; }
+    if (!list || !list.length) {
+        el.innerHTML = `
+            <div style="text-align:center;padding:40px 20px;background:#f8fafc;border-radius:14px;border:1.5px dashed #cbd5e1;">
+                <p style="color:#64748b;font-size:0.95rem;margin-bottom:12px;">You haven't written any reviews yet.</p>
+                <button class="btn-primary" onclick="openNewReviewModal()" style="display:inline-flex;align-items:center;gap:6px;">
+                    <i data-lucide="plus-circle"></i> Write Your First Review
+                </button>
+            </div>`;
+        if (window.lucide) lucide.createIcons();
+        return;
+    }
     el.innerHTML = list.map(r => `
         <div class="review-card-item">
             <div class="review-header">
-                <strong>${r.routeSummary}</strong>
-                <span class="star-rating">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)} (${r.rating}/5)</span>
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <strong style="color:#1e293b;font-size:1.05rem;">${r.routeSummary}</strong>
+                    <span class="star-rating" style="color:#f59e0b;font-size:1.1rem;letter-spacing:1px;">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span>
+                    <span style="font-size:0.85rem;color:#64748b;font-weight:600;">(${r.rating}/5)</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <button onclick="openReviewModal(${r.routeId}, '${(r.routeSummary||'Route').replace(/'/g, "\\'")}', ${r.rating}, '${(r.comment||'').replace(/'/g, "\\'")}')" style="background:none;border:none;color:#4f46e5;cursor:pointer;font-size:0.85rem;font-weight:600;display:inline-flex;align-items:center;gap:4px;">
+                        <i data-lucide="edit-3" style="width:14px;height:14px;"></i> Edit
+                    </button>
+                    <button onclick="deleteReviewItem(${r.id})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:0.85rem;font-weight:600;display:inline-flex;align-items:center;gap:4px;">
+                        <i data-lucide="trash-2" style="width:14px;height:14px;"></i> Delete
+                    </button>
+                </div>
             </div>
-            <p class="review-comment">${r.comment}</p>
-            <small class="review-date">${r.createdAt ? new Date(r.createdAt).toLocaleString('en-LK') : ''}</small>
+            <p class="review-comment" style="color:#475569;margin:8px 0;line-height:1.5;">${r.comment || ''}</p>
+            <small class="review-date" style="color:#94a3b8;">${r.createdAt ? new Date(r.createdAt).toLocaleString('en-LK') : ''}</small>
         </div>`).join('');
+
+    if (window.lucide) lucide.createIcons();
 }
+
+function openReviewModal(routeId, routeSummary, existingRating = 5, existingComment = '') {
+    const modal = document.getElementById('review-modal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+
+    document.getElementById('review-alert').style.display = 'none';
+    document.getElementById('review-comment').value = existingComment || '';
+
+    const routeSelectGroup = document.getElementById('route-select-group');
+    const routeSelect = document.getElementById('review-route-id');
+    const routeStaticDisplay = document.getElementById('review-route-static');
+
+    if (routeId) {
+        routeSelectGroup.style.display = 'none';
+        routeStaticDisplay.style.display = 'block';
+        document.getElementById('review-route-name').textContent = routeSummary || 'Selected Route';
+        routeSelect.value = routeId;
+    } else {
+        routeSelectGroup.style.display = 'block';
+        routeStaticDisplay.style.display = 'none';
+        loadRoutesIntoSelect();
+    }
+
+    setRating(existingRating || 5);
+    if (window.lucide) lucide.createIcons();
+}
+
+function openNewReviewModal() {
+    openReviewModal(null, null, 5, '');
+}
+
+function closeReviewModal() {
+    const modal = document.getElementById('review-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function setRating(rating) {
+    document.getElementById('review-rating-val').value = rating;
+    const stars = document.querySelectorAll('.star-picker-item');
+    stars.forEach((star, idx) => {
+        if (idx < rating) {
+            star.style.color = '#f59e0b';
+            star.style.transform = 'scale(1.1)';
+        } else {
+            star.style.color = '#cbd5e1';
+            star.style.transform = 'scale(1.0)';
+        }
+    });
+    const labels = {
+        1: 'Poor (1/5)',
+        2: 'Fair (2/5)',
+        3: 'Good (3/5)',
+        4: 'Very Good (4/5)',
+        5: 'Excellent (5/5)'
+    };
+    document.getElementById('star-rating-text').textContent = labels[rating] || `${rating}/5`;
+}
+
+async function loadRoutesIntoSelect() {
+    const select = document.getElementById('review-route-id');
+    if (select.children.length > 1) return;
+    try {
+        const res = await fetch(`${API_BASE}/routes`);
+        const data = await res.json();
+        if (res.ok && data.data) {
+            select.innerHTML = '<option value="">Choose a route to review…</option>' +
+                data.data.map(r => `<option value="${r.id}">${r.source} ➔ ${r.destination} (${r.distanceKm} km)</option>`).join('');
+        }
+    } catch (e) {
+        console.error('Failed to load routes for review:', e);
+    }
+}
+
+async function deleteReviewItem(id) {
+    if (!confirm('Are you sure you want to delete this review?')) return;
+    try {
+        const res = await fetch(`${API_BASE}/reviews/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            fetchDashboardData();
+        } else {
+            alert('Failed to delete review');
+        }
+    } catch (e) {
+        alert('Network error while deleting review');
+    }
+}
+
+// Review form submit handler
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('review-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const routeId = document.getElementById('review-route-id').value;
+        const rating  = parseInt(document.getElementById('review-rating-val').value, 10);
+        const comment = document.getElementById('review-comment').value.trim();
+        const alertEl = document.getElementById('review-alert');
+        const submitBtn = document.getElementById('btn-submit-review');
+
+        if (!routeId) {
+            alertEl.style.display = 'block';
+            alertEl.style.background = '#fef2f2';
+            alertEl.style.color = '#b91c1c';
+            alertEl.textContent = 'Please select a route to review.';
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting…';
+
+        try {
+            const res = await fetch(`${API_BASE}/reviews`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ routeId: Number(routeId), rating, comment })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                alertEl.style.display = 'block';
+                alertEl.style.background = '#f0fdf4';
+                alertEl.style.color = '#15803d';
+                alertEl.textContent = '🎉 Review submitted successfully!';
+                setTimeout(() => {
+                    closeReviewModal();
+                    fetchDashboardData();
+                }, 1000);
+            } else {
+                alertEl.style.display = 'block';
+                alertEl.style.background = '#fef2f2';
+                alertEl.style.color = '#b91c1c';
+                alertEl.textContent = data.message || 'Failed to submit review.';
+            }
+        } catch (err) {
+            alertEl.style.display = 'block';
+            alertEl.style.background = '#fef2f2';
+            alertEl.style.color = '#b91c1c';
+            alertEl.textContent = 'Network error while submitting review.';
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i data-lucide="send"></i> Submit Review';
+            if (window.lucide) lucide.createIcons();
+        }
+    });
+});
 
 async function markAllRead() {
     await fetch(`${API_BASE}/notifications/mark-all-read`, { method: 'PATCH', headers: { 'Authorization': `Bearer ${token}` } });
@@ -671,6 +969,27 @@ function setupUserMenu() {
 
 .btn-booking-cancel:hover {
     background: #fecaca;
+}
+
+.btn-rate-review {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: #fef9c3;
+    color: #854d0e;
+    border: 1px solid #fde047;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn-rate-review:hover {
+    background: #fef08a;
+    border-color: #eab308;
+    color: #713f12;
+    transform: translateY(-1px);
 }
 
 .status-badge {
