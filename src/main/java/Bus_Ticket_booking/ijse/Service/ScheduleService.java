@@ -16,5 +16,6 @@ public interface ScheduleService {
     ScheduleResponse createSchedule(ScheduleRequest request);
     ScheduleResponse updateSchedule(Long id, ScheduleRequest request);
     void deleteSchedule(Long id);
+    List<ScheduleResponse> getSchedulesForOwner(String username);
     ScheduleResponse toResponse(Schedule s);
 }
