@@ -17,21 +17,26 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Seeds the database with sample data on first startup.
- * Roles → Users → Routes → Buses → Seats → Schedules
+ * Seeds the database with sample data on startup.
+ * Roles → Users (Admin, User, Bus Owner) → Routes → Buses → Seats → Schedules → Sample Bookings
  */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class DataInitializer implements CommandLineRunner {
 
-    private final RoleRepository     roleRepository;
-    private final UserRepository     userRepository;
-    private final RouteRepository    routeRepository;
-    private final BusRepository      busRepository;
-    private final BusSeatRepository  busSeatRepository;
-    private final ScheduleRepository scheduleRepository;
-    private final PasswordEncoder    passwordEncoder;
+    private final RoleRepository        roleRepository;
+    private final UserRepository        userRepository;
+    private final RouteRepository       routeRepository;
+    private final BusRepository         busRepository;
+    private final BusSeatRepository     busSeatRepository;
+    private final ScheduleRepository    scheduleRepository;
+    private final BookingRepository     bookingRepository;
+    private final BookingSeatRepository  bookingSeatRepository;
+    private final PassengerRepository    passengerRepository;
+    private final NotificationRepository notificationRepository;
+    private final ReviewRepository       reviewRepository;
+    private final PasswordEncoder       passwordEncoder;
 
     @Override
     @Transactional
@@ -41,25 +46,71 @@ public class DataInitializer implements CommandLineRunner {
         // ── Roles ────────────────────────────────────────────────────────────
         Role adminRole = createRoleIfNotExists(RoleName.ROLE_ADMIN);
         Role userRole  = createRoleIfNotExists(RoleName.ROLE_USER);
+        Role ownerRole = createRoleIfNotExists(RoleName.ROLE_BUS_OWNER);
                          createRoleIfNotExists(RoleName.ROLE_GUEST);
 
-        // ── Users ────────────────────────────────────────────────────────────
-        if (!userRepository.existsByUsername("admin")) {
-            userRepository.save(User.builder()
+        // ── Users (Guarantee presence, correct roles, enabled=true, and standard passwords) ──
+        User adminUser = userRepository.findByUsername("admin").orElse(null);
+        if (adminUser == null) {
+            adminUser = userRepository.save(User.builder()
                     .username("admin").email("admin@gobus.lk")
                     .password(passwordEncoder.encode("Admin@1234"))
                     .fullName("GoBus Administrator").phone("+94771234567")
+                    .enabled(true)
                     .roles(Set.of(adminRole, userRole)).build());
-            log.info("Admin user created  → admin / Admin@1234");
+            log.info("Admin user created      → admin / Admin@1234");
+        } else {
+            adminUser.setEnabled(true);
+            adminUser.setPassword(passwordEncoder.encode("Admin@1234"));
+            adminUser.getRoles().add(adminRole);
+            adminUser.getRoles().add(userRole);
+            adminUser = userRepository.save(adminUser);
+            log.info("Admin user verified     → admin / Admin@1234");
         }
-        if (!userRepository.existsByUsername("testuser")) {
-            userRepository.save(User.builder()
+
+        User testUser = userRepository.findByUsername("testuser").orElse(null);
+        if (testUser == null) {
+            testUser = userRepository.save(User.builder()
                     .username("testuser").email("user@gobus.lk")
                     .password(passwordEncoder.encode("User@1234"))
                     .fullName("Test User").phone("+94779876543")
+                    .enabled(true)
                     .roles(Set.of(userRole)).build());
-            log.info("Test user created   → testuser / User@1234");
+            log.info("Test user created       → testuser / User@1234");
+        } else {
+            testUser.setEnabled(true);
+            testUser.setPassword(passwordEncoder.encode("User@1234"));
+            testUser.getRoles().add(userRole);
+            testUser = userRepository.save(testUser);
+            log.info("Test user verified      → testuser / User@1234");
         }
+
+        User busOwner = userRepository.findByUsername("busowner").orElse(null);
+        if (busOwner == null) {
+            busOwner = userRepository.save(User.builder()
+                    .username("busowner").email("owner@gobus.lk")
+                    .password(passwordEncoder.encode("Owner@1234"))
+                    .fullName("Kamal Gunasekara (Bus Operator)").phone("+94773344556")
+                    .enabled(true)
+                    .roles(Set.of(ownerRole, userRole)).build());
+            log.info("Bus Owner user created  → busowner / Owner@1234");
+        } else {
+            busOwner.setEnabled(true);
+            busOwner.setPassword(passwordEncoder.encode("Owner@1234"));
+            busOwner.getRoles().add(ownerRole);
+            busOwner.getRoles().add(userRole);
+            busOwner = userRepository.save(busOwner);
+            log.info("Bus Owner verified      → busowner / Owner@1234");
+        }
+
+        // ── Ensure all existing registered users are enabled ─────────────────
+        userRepository.findAll().forEach(u -> {
+            if (!u.isEnabled()) {
+                u.setEnabled(true);
+                userRepository.save(u);
+                log.info("Auto-activated user account: {}", u.getUsername());
+            }
+        });
 
         // ── Routes ───────────────────────────────────────────────────────────
         Route r1 = getOrCreateRoute("Colombo",  "Kandy",   166, 240, new BigDecimal("1550.00"));
@@ -70,57 +121,151 @@ public class DataInitializer implements CommandLineRunner {
         Route r6 = getOrCreateRoute("Kandy",    "Colombo", 166, 240, new BigDecimal("1550.00"));
         Route r7 = getOrCreateRoute("Galle",    "Colombo", 116, 120, new BigDecimal("950.00"));
         Route r8 = getOrCreateRoute("Colombo",  "Nuwara Eliya", 180, 270, new BigDecimal("1750.00"));
-        log.info("Ensured {} routes exist", 8);
+        log.info("Ensured 8 routes exist");
 
-        // ── Buses ────────────────────────────────────────────────────────────
-        Bus b1 = getOrCreateBus("NB-1234", "GoBus Express",    BusType.LUXURY,      36);
-        Bus b2 = getOrCreateBus("SL-5678", "Southern Lines",   BusType.AC_SLEEPER,  40);
-        Bus b3 = getOrCreateBus("EX-9012", "Express Lanka",    BusType.AC_SEATER,   44);
-        Bus b4 = getOrCreateBus("KN-3456", "Kandy Night Liner",BusType.LUXURY,      36);
-        Bus b5 = getOrCreateBus("GL-7890", "Galle Premier",    BusType.AC_SEATER,   44);
-        log.info("Ensured 5 buses with seats exist");
+        // ── Buses (Assigned to Bus Owner) ────────────────────────────────────
+        Bus b1 = getOrCreateBus("NB-1234", "GoBus Express",     BusType.LUXURY,      36, busOwner);
+        Bus b2 = getOrCreateBus("SL-5678", "Southern Lines",    BusType.AC_SLEEPER,  40, busOwner);
+        Bus b3 = getOrCreateBus("EX-9012", "Express Lanka",     BusType.AC_SEATER,   44, busOwner);
+        Bus b4 = getOrCreateBus("KN-3456", "Kandy Night Liner", BusType.LUXURY,      36, busOwner);
+        Bus b5 = getOrCreateBus("GL-7890", "Galle Premier",     BusType.AC_SEATER,   44, busOwner);
+        log.info("Ensured 5 buses with seats and operator assignment exist");
 
-        // ── Schedules (today + next 7 days) ──────────────────────────────────
-        LocalDateTime base = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
+        // ── Schedules (Seed today + next 14 days) ────────────────────────────
+        LocalDateTime startOfToday = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
+        long upcomingCount = scheduleRepository.findAll().stream()
+                .filter(s -> s.isActive() && s.getDepartureTime() != null && !s.getDepartureTime().isBefore(startOfToday))
+                .count();
 
-        if (scheduleRepository.count() == 0 || scheduleRepository.findAllActiveWithSeats().isEmpty()) {
-            for (int dayOffset = 0; dayOffset <= 7; dayOffset++) {
-                LocalDateTime day = base.plusDays(dayOffset);
+        if (upcomingCount < 30) {
+            for (int dayOffset = 0; dayOffset <= 14; dayOffset++) {
+                LocalDateTime day = startOfToday.plusDays(dayOffset);
 
                 // Colombo → Kandy
-                saveSchedule(r1, b1, day.withHour(6).withMinute(30),  day.withHour(10).withMinute(45), new BigDecimal("1850.00"), 36);
-                saveSchedule(r1, b2, day.withHour(8).withMinute(0),   day.withHour(12).withMinute(35), new BigDecimal("1550.00"), 40);
-                saveSchedule(r1, b3, day.withHour(14).withMinute(0),  day.withHour(18).withMinute(15), new BigDecimal("1650.00"), 44);
+                saveScheduleIfNotExists(r1, b1, day.withHour(6).withMinute(30),  day.withHour(10).withMinute(45), new BigDecimal("1850.00"), 36);
+                saveScheduleIfNotExists(r1, b2, day.withHour(8).withMinute(0),   day.withHour(12).withMinute(35), new BigDecimal("1550.00"), 40);
+                saveScheduleIfNotExists(r1, b3, day.withHour(14).withMinute(0),  day.withHour(18).withMinute(15), new BigDecimal("1650.00"), 44);
 
                 // Colombo → Galle
-                saveSchedule(r2, b5, day.withHour(7).withMinute(0),   day.withHour(9).withMinute(0),   new BigDecimal("950.00"),  44);
-                saveSchedule(r2, b3, day.withHour(13).withMinute(0),  day.withHour(15).withMinute(0),  new BigDecimal("980.00"),  44);
+                saveScheduleIfNotExists(r2, b5, day.withHour(7).withMinute(0),   day.withHour(9).withMinute(0),   new BigDecimal("950.00"),  44);
+                saveScheduleIfNotExists(r2, b3, day.withHour(13).withMinute(0),  day.withHour(15).withMinute(0),  new BigDecimal("980.00"),  44);
 
                 // Colombo → Jaffna
-                saveSchedule(r3, b1, day.withHour(5).withMinute(0),   day.withHour(13).withMinute(0),  new BigDecimal("2450.00"), 36);
-                saveSchedule(r3, b4, day.withHour(20).withMinute(0),  day.plusDays(1).withHour(4).withMinute(0), new BigDecimal("2600.00"), 36);
+                saveScheduleIfNotExists(r3, b1, day.withHour(5).withMinute(0),   day.withHour(13).withMinute(0),  new BigDecimal("2450.00"), 36);
+                saveScheduleIfNotExists(r3, b4, day.withHour(20).withMinute(0),  day.plusDays(1).withHour(4).withMinute(0), new BigDecimal("2600.00"), 36);
 
                 // Kandy → Badulla
-                saveSchedule(r4, b4, day.withHour(9).withMinute(0),   day.withHour(11).withMinute(30), new BigDecimal("1200.00"), 36);
+                saveScheduleIfNotExists(r4, b4, day.withHour(9).withMinute(0),   day.withHour(11).withMinute(30), new BigDecimal("1200.00"), 36);
 
                 // Colombo → Matara
-                saveSchedule(r5, b2, day.withHour(7).withMinute(30),  day.withHour(10).withMinute(30), new BigDecimal("1100.00"), 40);
+                saveScheduleIfNotExists(r5, b2, day.withHour(7).withMinute(30),  day.withHour(10).withMinute(30), new BigDecimal("1100.00"), 40);
 
                 // Kandy → Colombo (return)
-                saveSchedule(r6, b1, day.withHour(15).withMinute(0),  day.withHour(19).withMinute(15), new BigDecimal("1750.00"), 36);
+                saveScheduleIfNotExists(r6, b1, day.withHour(15).withMinute(0),  day.withHour(19).withMinute(15), new BigDecimal("1750.00"), 36);
 
                 // Galle → Colombo (return)
-                saveSchedule(r7, b5, day.withHour(16).withMinute(0),  day.withHour(18).withMinute(0),  new BigDecimal("950.00"),  44);
+                saveScheduleIfNotExists(r7, b5, day.withHour(16).withMinute(0),  day.withHour(18).withMinute(0),  new BigDecimal("950.00"),  44);
 
                 // Colombo → Nuwara Eliya
-                saveSchedule(r8, b4, day.withHour(6).withMinute(0),   day.withHour(10).withMinute(30), new BigDecimal("1750.00"), 36);
+                saveScheduleIfNotExists(r8, b4, day.withHour(6).withMinute(0),   day.withHour(10).withMinute(30), new BigDecimal("1750.00"), 36);
             }
-            log.info("Seeded schedules for today + 7 days");
+            log.info("Seeded active schedules for today + next 14 days");
         }
+
+        // ── Seed Sample Bookings for Manifest & Test User ─────────────────────
+        List<Booking> testUserBookings = bookingRepository.findByUserId(testUser.getId());
+        boolean hasUpcomingConfirmed = testUserBookings.stream().anyMatch(b ->
+                b.getStatus() == BookingStatus.CONFIRMED &&
+                b.getSchedule() != null &&
+                b.getSchedule().getDepartureTime() != null &&
+                !b.getSchedule().getDepartureTime().isBefore(LocalDateTime.now()));
+
+        if (!hasUpcomingConfirmed) {
+            List<Schedule> upcomingSchedules = scheduleRepository.findAll().stream()
+                    .filter(s -> s.isActive() && s.getDepartureTime() != null &&
+                            s.getDepartureTime().isAfter(LocalDateTime.now().plusHours(3)) &&
+                            s.getAvailableSeats() > 3)
+                    .sorted(java.util.Comparator.comparing(Schedule::getDepartureTime))
+                    .toList();
+
+            if (!upcomingSchedules.isEmpty()) {
+                Schedule s1 = upcomingSchedules.get(0);
+                Schedule s2 = upcomingSchedules.size() > 1 ? upcomingSchedules.get(1) : s1;
+                createSampleBooking(testUser, s1, "Kasun", "Silva", "199512345678", 29, "Male", "+94779876543", List.of("1", "2"));
+                createSampleBooking(testUser, s2, "Kasun", "Silva", "199512345678", 29, "Male", "+94779876543", List.of("5"));
+                log.info("Seeded upcoming confirmed bookings for testuser on schedules #{} and #{}", s1.getId(), s2.getId());
+            }
+        }
+
+        // ── Seed Sample Notification for Test User ────────────────────────────
+        if (notificationRepository.findByUserIdAndReadFalse(testUser.getId()).isEmpty()) {
+            notificationRepository.save(Notification.builder()
+                    .user(testUser)
+                    .message("Welcome to GoBus! Your account is active. Explore routes and book tickets instantly.")
+                    .type(NotificationType.GENERAL)
+                    .read(false)
+                    .createdAt(LocalDateTime.now())
+                    .build());
+            log.info("Seeded welcome notification for testuser");
+        }
+
+        // ── Seed Sample Review for Test User ─────────────────────────────────
+        if (reviewRepository.findByUserId(testUser.getId()).isEmpty()) {
+            reviewRepository.save(Review.builder()
+                    .user(testUser)
+                    .route(r1)
+                    .rating(5)
+                    .comment("Great comfort and timely service between Colombo and Kandy!")
+                    .createdAt(LocalDateTime.now())
+                    .build());
+            log.info("Seeded sample review for testuser");
+        }
+
         log.info("=== Data Initialization Complete ===");
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private void createSampleBooking(User user, Schedule schedule, String fName, String lName,
+                                      String nic, int age, String gender, String phone, List<String> seatNums) {
+        Passenger passenger = Passenger.builder()
+                .firstName(fName)
+                .lastName(lName)
+                .nic(nic)
+                .age(age)
+                .gender(gender)
+                .phone(phone)
+                .build();
+        Passenger savedPassenger = passengerRepository.save(passenger);
+
+        BigDecimal farePerSeat = schedule.getFare() != null ? schedule.getFare() : new BigDecimal("1500.00");
+        BigDecimal total = farePerSeat.multiply(BigDecimal.valueOf(seatNums.size()));
+
+        Booking booking = Booking.builder()
+                .user(user)
+                .schedule(schedule)
+                .passenger(savedPassenger)
+                .bookingDate(LocalDateTime.now().minusHours(2))
+                .status(BookingStatus.CONFIRMED)
+                .totalAmount(total)
+                .build();
+        Booking savedBooking = bookingRepository.save(booking);
+
+        List<BusSeat> seats = busSeatRepository.findByBusId(schedule.getBus().getId());
+        for (String seatNum : seatNums) {
+            BusSeat matched = seats.stream().filter(s -> s.getSeatNumber().equals(seatNum)).findFirst().orElse(null);
+            if (matched != null) {
+                bookingSeatRepository.save(BookingSeat.builder()
+                        .booking(savedBooking)
+                        .busSeat(matched)
+                        .build());
+            }
+        }
+
+        // Update schedule available seats
+        schedule.setAvailableSeats(Math.max(0, schedule.getAvailableSeats() - seatNums.size()));
+        scheduleRepository.save(schedule);
+    }
 
     private Route getOrCreateRoute(String source, String destination, int distKm, int durationMin, BigDecimal baseFare) {
         List<Route> existing = routeRepository.findBySourceIgnoreCaseAndDestinationIgnoreCase(source, destination);
@@ -130,8 +275,16 @@ public class DataInitializer implements CommandLineRunner {
         return saveRoute(source, destination, distKm, durationMin, baseFare);
     }
 
-    private Bus getOrCreateBus(String busNumber, String busName, BusType busType, int totalSeats) {
-        return busRepository.findByBusNumber(busNumber).orElseGet(() -> saveBus(busNumber, busName, busType, totalSeats));
+    private Bus getOrCreateBus(String busNumber, String busName, BusType busType, int totalSeats, User owner) {
+        return busRepository.findByBusNumber(busNumber)
+                .map(existingBus -> {
+                    if (existingBus.getOwner() == null && owner != null) {
+                        existingBus.setOwner(owner);
+                        return busRepository.save(existingBus);
+                    }
+                    return existingBus;
+                })
+                .orElseGet(() -> saveBus(busNumber, busName, busType, totalSeats, owner));
     }
 
     private Route saveRoute(String source, String destination, int distKm, int durationMin, BigDecimal baseFare) {
@@ -142,10 +295,12 @@ public class DataInitializer implements CommandLineRunner {
         return routeRepository.save(r);
     }
 
-    private Bus saveBus(String busNumber, String busName, BusType busType, int totalSeats) {
+    private Bus saveBus(String busNumber, String busName, BusType busType, int totalSeats, User owner) {
         Bus bus = Bus.builder()
                 .busNumber(busNumber).busName(busName)
-                .busType(busType).totalSeats(totalSeats).build();
+                .busType(busType).totalSeats(totalSeats)
+                .owner(owner)
+                .build();
         Bus saved = busRepository.save(bus);
 
         List<BusSeat> seats = new ArrayList<>();
@@ -158,6 +313,13 @@ public class DataInitializer implements CommandLineRunner {
         }
         busSeatRepository.saveAll(seats);
         return saved;
+    }
+
+    private void saveScheduleIfNotExists(Route route, Bus bus, LocalDateTime dep, LocalDateTime arr,
+                                         BigDecimal fare, int availableSeats) {
+        if (!scheduleRepository.existsByRouteIdAndBusIdAndDepartureTime(route.getId(), bus.getId(), dep)) {
+            saveSchedule(route, bus, dep, arr, fare, availableSeats);
+        }
     }
 
     private void saveSchedule(Route route, Bus bus, LocalDateTime dep, LocalDateTime arr,
