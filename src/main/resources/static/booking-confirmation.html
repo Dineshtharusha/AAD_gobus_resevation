@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="css/booking.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="js/qrcode.min.js"></script>
 </head>
 <body>
 <a class="brand no-print" href="index.html"><span class="brand-mark">G</span><span>Go<span>Bus</span></span></a>
@@ -131,7 +132,7 @@
 
         <div style="display:flex; justify-content:space-between; align-items:center; border-top:2px dashed #cbd5e1; padding-top:14px;">
             <div style="display:flex; align-items:center; gap:12px;">
-                <img id="succ-qr" src="" alt="QR" style="width:75px; height:75px; border:1px solid #e2e8f0; border-radius:6px; padding:2px;">
+                <div id="ticket-qrcode" style="width:128px; height:128px; display:flex; align-items:center; justify-content:center; background:#fff; border:1px solid #e2e8f0; border-radius:6px; padding:4px; overflow:hidden;"></div>
                 <small style="color:#64748b; max-width:200px; display:block;">Show this QR code at boarding gate for instant scanning.</small>
             </div>
             <div style="text-align:right;">
@@ -228,8 +229,30 @@ function showConfirmedTicket(booking, payment) {
     document.getElementById('succ-txn').textContent = payment.transactionId || 'TXN-SUCCESS';
     document.getElementById('succ-barcode').textContent = `GB-${String(booking.id).padStart(4, '0')}-${booking.passengerNic.slice(-4)}`;
 
-    const qrData = encodeURIComponent(`GoBus-Ticket|ID:${booking.id}|Route:${booking.source}->${booking.destination}|Passenger:${booking.passengerName}|Seats:${(booking.seatNumbers||[]).join(',')}`);
-    document.getElementById('succ-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`;
+    const qrContainer = document.getElementById("ticket-qrcode") || document.getElementById("succ-qr-container");
+    if (qrContainer) {
+        qrContainer.innerHTML = "";
+        const bookingRef = booking.bookingReference || `#GB-BKG-${String(booking.id).padStart(5, '0')}`;
+        const seatStr = (booking.seatNumbers && booking.seatNumbers.length > 0)
+            ? booking.seatNumbers.join(', ')
+            : (booking.seatNumber || pending.seatNumber || 'Seat 1');
+
+        if (typeof QRCode !== 'undefined') {
+            new QRCode(qrContainer, {
+                text: JSON.stringify({
+                    bookingId: booking.id,
+                    bookingReference: bookingRef,
+                    passenger: booking.passengerName,
+                    seatNumber: seatStr
+                }),
+                width: 128,
+                height: 128,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+    }
 
     if (window.lucide) lucide.createIcons();
 }
