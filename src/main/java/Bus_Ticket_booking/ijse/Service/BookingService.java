@@ -12,5 +12,7 @@ public interface BookingService {
     List<BookingResponse> getBookingsByUser(String username);
     BookingResponse getBookingById(Long id, String username);
     List<BookingResponse> getAllBookings();
+    List<BookingResponse> getBookingsForOwner(String username, Long busId, Long scheduleId);
+    List<BookingResponse> getBookingsBySchedule(Long scheduleId);
     BookingResponse toResponse(Booking booking, List<BookingSeat> bookingSeats);
 }
