@@ -129,6 +129,35 @@ public class BookingServiceImpl implements BookingService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<BookingResponse> getBookingsForOwner(String username, Long busId, Long scheduleId) {
+        List<Booking> bookings;
+        if (scheduleId != null) {
+            bookings = bookingRepository.findByScheduleId(scheduleId);
+        } else if (busId != null) {
+            bookings = bookingRepository.findByScheduleBusId(busId);
+        } else {
+            User user = userRepository.findByUsername(username).orElse(null);
+            if (isAdmin(user)) {
+                bookings = bookingRepository.findAll();
+            } else {
+                bookings = bookingRepository.findByScheduleBusOwnerUsername(username);
+            }
+        }
+        return bookings.stream()
+                .map(b -> toResponse(b, bookingSeatRepository.findByBookingId(b.getId())))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BookingResponse> getBookingsBySchedule(Long scheduleId) {
+        return bookingRepository.findByScheduleId(scheduleId).stream()
+                .map(b -> toResponse(b, bookingSeatRepository.findByBookingId(b.getId())))
+                .collect(Collectors.toList());
+    }
+
     private boolean isAdmin(User user) {
         if (user == null) return false;
         return user.getRoles().stream()
@@ -140,11 +169,14 @@ public class BookingServiceImpl implements BookingService {
         List<String> seatNumbers = bookingSeats.stream()
                 .map(bs -> bs.getBusSeat().getSeatNumber())
                 .collect(Collectors.toList());
+        String bookingRef = String.format("#GB-BKG-%05d", booking.getId());
         return BookingResponse.builder()
                 .id(booking.getId())
+                .bookingReference(bookingRef)
                 .userId(booking.getUser().getId())
                 .username(booking.getUser().getUsername())
                 .scheduleId(booking.getSchedule().getId())
+                .routeId(booking.getSchedule().getRoute() != null ? booking.getSchedule().getRoute().getId() : null)
                 .source(booking.getSchedule().getRoute().getSource())
                 .destination(booking.getSchedule().getRoute().getDestination())
                 .departureTime(booking.getSchedule().getDepartureTime())
@@ -154,6 +186,7 @@ public class BookingServiceImpl implements BookingService {
                 .passengerName(booking.getPassenger().getFirstName() + " " + booking.getPassenger().getLastName())
                 .passengerNic(booking.getPassenger().getNic())
                 .passengerPhone(booking.getPassenger().getPhone())
+                .passengerEmail(booking.getUser() != null ? booking.getUser().getEmail() : null)
                 .seatNumbers(seatNumbers)
                 .bookingDate(booking.getBookingDate())
                 .status(booking.getStatus())
