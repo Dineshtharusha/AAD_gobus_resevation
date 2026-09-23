@@ -14,4 +14,6 @@ public interface BusRepository extends JpaRepository<Bus, Long> {
     List<Bus> findByActiveTrue();
     List<Bus> findByBusType(BusType busType);
     boolean existsByBusNumber(String busNumber);
+    List<Bus> findByOwnerUsername(String username);
+    List<Bus> findByOwnerUsernameAndActiveTrue(String username);
 }
