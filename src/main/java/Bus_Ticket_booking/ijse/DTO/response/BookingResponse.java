@@ -16,9 +16,11 @@ import java.util.List;
 @AllArgsConstructor
 public class BookingResponse {
     private Long id;
+    private String bookingReference;
     private Long userId;
     private String username;
     private Long scheduleId;
+    private Long routeId;
     private String source;
     private String destination;
     private LocalDateTime departureTime;
@@ -28,6 +30,7 @@ public class BookingResponse {
     private String passengerName;
     private String passengerNic;
     private String passengerPhone;
+    private String passengerEmail;
     private List<String> seatNumbers;
     private LocalDateTime bookingDate;
     private BookingStatus status;
