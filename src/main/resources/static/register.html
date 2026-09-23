@@ -17,9 +17,10 @@
             <p>Create your free account and start booking intercity bus journeys across Sri Lanka.</p>
             <div class="features-list">
                 <div class="feature"><i data-lucide="check-circle"></i> Free to register</div>
+                <div class="feature"><i data-lucide="shield-check"></i> Email verification security</div>
                 <div class="feature"><i data-lucide="history"></i> Booking history</div>
                 <div class="feature"><i data-lucide="star"></i> Leave route reviews</div>
-                <div class="feature"><i data-lucide="bell"></i> Booking notifications</div>
+                <div class="feature"><i data-lucide="bell"></i> Instant trip notifications</div>
             </div>
         </div>
     </div>
@@ -30,9 +31,10 @@
                 <span class="brand-mark">G</span>
                 <span>Go<span>Bus</span></span>
             </a>
-            <h1 class="auth-subtitle">Create your account</h1>
+            <h1 class="auth-subtitle" id="auth-main-title">Create your account</h1>
         </div>
 
+        <!-- Registration Form -->
         <form class="auth-form" id="register-form" novalidate>
             <div class="form-row">
                 <div class="form-group">
@@ -57,14 +59,14 @@
                 <label for="phone">Phone number</label>
                 <div class="input-wrapper">
                     <i data-lucide="phone"></i>
-                    <input id="phone" type="tel" placeholder="+94771234567" required autocomplete="tel">
+                    <input id="phone" type="tel" placeholder="+94771234567" autocomplete="tel">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input id="password" type="password" placeholder="Min 6 characters" required autocomplete="new-password">
+                    <input id="password" type="password" placeholder="Min 8 characters" required autocomplete="new-password">
                 </div>
                 <div class="form-group">
                     <label for="confirm-password">Confirm Password</label>
@@ -73,7 +75,7 @@
             </div>
 
             <label class="checkbox-group">
-                <input type="checkbox" required>
+                <input type="checkbox" id="terms-agree" required>
                 I agree to the <a href="#">Terms &amp; Conditions</a>
             </label>
 
@@ -85,7 +87,47 @@
             <div id="success-message" class="success-message" style="display:none;"></div>
         </form>
 
-        <p class="auth-footer">
+        <!-- Verification Step Card (Shown after Registration) -->
+        <div class="verification-card" id="verification-card">
+            <div class="verification-icon-badge">
+                <i data-lucide="mail-check"></i>
+            </div>
+            <h2>Verify your email</h2>
+            <p class="desc">
+                We've sent a 6-digit verification code to<br>
+                <strong id="verify-email-display">your email</strong>
+            </p>
+
+            <div class="otp-boxes" id="signup-otp-boxes">
+                <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
+                <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*">
+                <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*">
+                <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*">
+                <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*">
+                <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*">
+            </div>
+
+            <div class="otp-actions">
+                <button class="btn-primary" id="btn-verify-signup-otp" type="button">
+                    <i data-lucide="check-circle-2"></i> Verify &amp; Activate Account
+                </button>
+
+                <div class="resend-row">
+                    Didn't receive the code? 
+                    <button class="resend-btn" id="btn-resend-signup-otp" type="button">Resend code</button>
+                    <span id="signup-resend-timer" style="display:none;color:#64748b;margin-left:4px;">(in <span id="signup-countdown">60</span>s)</span>
+                </div>
+
+                <button class="btn-secondary" id="btn-back-to-register" type="button" style="margin-top:10px;">
+                    <i data-lucide="arrow-left"></i> Edit Details
+                </button>
+            </div>
+
+            <div id="verify-error-message" class="error-message" style="display:none;margin-top:16px;"></div>
+            <div id="verify-success-message" class="success-message" style="display:none;margin-top:16px;"></div>
+        </div>
+
+        <p class="auth-footer" id="auth-footer-text">
             Already have an account? <a href="login.html">Sign in</a>
         </p>
     </div>
