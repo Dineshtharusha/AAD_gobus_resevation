@@ -6,8 +6,10 @@ import Bus_Ticket_booking.ijse.Service.ReviewService;
 import Bus_Ticket_booking.ijse.entity.Review;
 import Bus_Ticket_booking.ijse.entity.Route;
 import Bus_Ticket_booking.ijse.entity.User;
+import Bus_Ticket_booking.ijse.enumaration.RoleName;
 import Bus_Ticket_booking.ijse.exception.BadRequestException;
 import Bus_Ticket_booking.ijse.exception.ResourceNotFoundException;
+import Bus_Ticket_booking.ijse.exception.UnauthorizedException;
 import Bus_Ticket_booking.ijse.repository.ReviewRepository;
 import Bus_Ticket_booking.ijse.repository.RouteRepository;
 import Bus_Ticket_booking.ijse.repository.UserRepository;
@@ -16,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,19 +39,24 @@ public class ReviewServiceImpl implements ReviewService {
         Route route = routeRepository.findById(request.getRouteId())
                 .orElseThrow(() -> new ResourceNotFoundException("Route", "id", request.getRouteId()));
 
-        if (reviewRepository.existsByUserIdAndRouteId(user.getId(), route.getId())) {
-            throw new BadRequestException("You have already reviewed this route");
+        Review review = reviewRepository.findByUserIdAndRouteId(user.getId(), route.getId())
+                .orElse(null);
+
+        if (review != null) {
+            review.setRating(request.getRating());
+            review.setComment(request.getComment());
+            review.setCreatedAt(LocalDateTime.now());
+        } else {
+            review = Review.builder()
+                    .user(user)
+                    .route(route)
+                    .rating(request.getRating())
+                    .comment(request.getComment())
+                    .build();
         }
 
-        Review review = Review.builder()
-                .user(user)
-                .route(route)
-                .rating(request.getRating())
-                .comment(request.getComment())
-                .build();
-
         Review saved = reviewRepository.save(review);
-        log.info("Review {} created by {} for route {}", saved.getId(), username, route.getId());
+        log.info("Review {} saved by {} for route {}", saved.getId(), username, route.getId());
         return toResponse(saved);
     }
 
@@ -78,6 +86,26 @@ public class ReviewServiceImpl implements ReviewService {
         }
         reviewRepository.deleteById(id);
         log.info("Review {} deleted", id);
+    }
+
+    @Override
+    @Transactional
+    public void deleteReview(Long id, String username) {
+        Review review = reviewRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Review", "id", id));
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(r -> r.getName() == RoleName.ROLE_ADMIN);
+
+        if (!isAdmin && !review.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedException("You are not authorized to delete this review");
+        }
+
+        reviewRepository.delete(review);
+        log.info("Review {} deleted by {}", id, username);
     }
 
     @Override
