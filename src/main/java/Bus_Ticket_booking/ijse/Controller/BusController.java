@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,14 +30,22 @@ public class BusController {
     private final BusService busService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'BUS_OWNER')")
     @Operation(summary = "Get all buses")
     public ResponseEntity<ApiResponse<List<BusResponse>>> getAllBuses() {
         return ResponseEntity.ok(ApiResponse.success(busService.getAllBuses()));
     }
 
+    @GetMapping("/my")
+    @PreAuthorize("hasAnyRole('BUS_OWNER', 'ADMIN')")
+    @Operation(summary = "Get buses owned by the authenticated bus owner")
+    public ResponseEntity<ApiResponse<List<BusResponse>>> getMyBuses(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(ApiResponse.success(busService.getMyBuses(userDetails.getUsername())));
+    }
+
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'BUS_OWNER')")
     @Operation(summary = "Get bus by ID")
     public ResponseEntity<ApiResponse<BusResponse>> getBusById(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(busService.getBusById(id)));
@@ -66,3 +76,4 @@ public class BusController {
         return ResponseEntity.ok(ApiResponse.success(null, "Bus deactivated"));
     }
 }
+
