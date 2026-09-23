@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface BusService {
     List<BusResponse> getAllBuses();
+    List<BusResponse> getMyBuses(String username);
     BusResponse getBusById(Long id);
     BusResponse createBus(BusRequest request);
     BusResponse updateBus(Long id, BusRequest request);
