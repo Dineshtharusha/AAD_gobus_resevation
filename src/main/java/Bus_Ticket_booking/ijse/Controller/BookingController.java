@@ -65,4 +65,24 @@ public class BookingController {
     public ResponseEntity<ApiResponse<List<BookingResponse>>> getAllBookings() {
         return ResponseEntity.ok(ApiResponse.success(bookingService.getAllBookings()));
     }
+
+    @GetMapping("/owner/passengers")
+    @PreAuthorize("hasAnyRole('BUS_OWNER', 'ADMIN')")
+    @Operation(summary = "Get bookings and passenger contact list for bus owner/operator")
+    public ResponseEntity<ApiResponse<List<BookingResponse>>> getOwnerPassengerList(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(required = false) Long busId,
+            @RequestParam(required = false) Long scheduleId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                bookingService.getBookingsForOwner(userDetails.getUsername(), busId, scheduleId)));
+    }
+
+    @GetMapping("/schedule/{scheduleId}")
+    @PreAuthorize("hasAnyRole('BUS_OWNER', 'ADMIN')")
+    @Operation(summary = "Get all passenger bookings for a specific schedule")
+    public ResponseEntity<ApiResponse<List<BookingResponse>>> getBookingsBySchedule(
+            @PathVariable Long scheduleId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                bookingService.getBookingsBySchedule(scheduleId)));
+    }
 }
