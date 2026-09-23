@@ -33,6 +33,12 @@ public class SecurityConfig {
 
     /** Public endpoints that require no authentication */
     private static final String[] PUBLIC_URLS = {
+            "/",
+            "/*.html",
+            "/css/**",
+            "/js/**",
+            "/images/**",
+            "/favicon.ico",
             "/api/v1/auth/**",
             "/api-docs/**",
             "/swagger-ui/**",
@@ -98,6 +104,11 @@ public class SecurityConfig {
                     .requestMatchers(PUBLIC_URLS).permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/routes/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/schedules/**").permitAll()
+
+                    // Bus owner endpoints — scoped to their own data
+                    .requestMatchers(HttpMethod.GET, "/api/v1/buses/my").hasAnyRole("BUS_OWNER", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/v1/schedules/owner").hasAnyRole("BUS_OWNER", "ADMIN")
+                    .requestMatchers("/api/v1/bookings/owner/**").hasAnyRole("BUS_OWNER", "ADMIN")
 
                     // Admin-only write operations
                     .requestMatchers(HttpMethod.POST,   "/api/v1/routes/**").hasRole("ADMIN")
