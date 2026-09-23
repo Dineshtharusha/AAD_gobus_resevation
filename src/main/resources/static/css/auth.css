@@ -483,3 +483,235 @@ body::after {
         grid-template-columns: 1fr;
     }
 }
+
+/* ==========================================================================
+   OTP Verification & Modal Styles (Email Verification & Forgot Password)
+   ========================================================================== */
+
+.verification-card {
+    display: none;
+    animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    text-align: center;
+}
+
+.verification-icon-badge {
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(79, 70, 229, 0.25) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+}
+
+.verification-icon-badge i {
+    width: 34px;
+    height: 34px;
+}
+
+.verification-card h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.verification-card p.desc {
+    color: var(--text-light);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.verification-card p.desc strong {
+    color: var(--text-dark);
+}
+
+/* OTP 6-Digit Inputs */
+.otp-boxes {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0 26px;
+}
+
+.otp-box {
+    width: 48px;
+    height: 56px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: 'Space Grotesk', monospace;
+    text-align: center;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: #f8fafc;
+    color: var(--text-dark);
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.otp-box:focus {
+    border-color: var(--primary);
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+    transform: translateY(-2px);
+}
+
+.otp-box.filled {
+    border-color: var(--primary);
+    background: #ffffff;
+}
+
+.otp-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+.resend-row {
+    margin-top: 16px;
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.resend-btn {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.15s;
+    padding: 0;
+}
+
+.resend-btn:hover:not(:disabled) {
+    color: var(--primary-hover);
+}
+
+.resend-btn:disabled {
+    color: #94a3b8;
+    cursor: not-allowed;
+    text-decoration: none;
+}
+
+/* ==========================================================================
+   Interactive Modals (Forgot Password)
+   ========================================================================== */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-card {
+    background: #ffffff;
+    border-radius: 20px;
+    max-width: 480px;
+    width: 100%;
+    padding: 36px 32px;
+    box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35);
+    position: relative;
+    transform: scale(0.92) translateY(20px);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-overlay.active .modal-card {
+    transform: scale(1) translateY(0);
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-light);
+    transition: all 0.2s;
+}
+
+.modal-close:hover {
+    background: #fee2e2;
+    color: #ef4444;
+    border-color: #fca5a5;
+    transform: rotate(90deg);
+}
+
+.modal-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.modal-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+}
+
+.modal-header p {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.modal-step {
+    display: none;
+}
+
+.modal-step.active {
+    display: block;
+    animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.step-dot {
+    width: 28px;
+    height: 6px;
+    border-radius: 3px;
+    background: #e2e8f0;
+    transition: background 0.25s;
+}
+
+.step-dot.active {
+    background: var(--primary);
+}
+
