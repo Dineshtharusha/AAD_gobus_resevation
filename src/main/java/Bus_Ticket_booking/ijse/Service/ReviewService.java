@@ -11,5 +11,6 @@ public interface ReviewService {
     List<ReviewResponse> getReviewsByRoute(Long routeId);
     List<ReviewResponse> getMyReviews(String username);
     void deleteReview(Long id);
+    void deleteReview(Long id, String username);
     ReviewResponse toResponse(Review review);
 }
