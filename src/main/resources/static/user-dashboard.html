@@ -10,6 +10,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="js/qrcode.min.js"></script>
+    <script src="js/app.js"></script>
 </head>
 <body>
     <!-- Top Navigation Bar -->
@@ -234,7 +235,7 @@
                 <!-- Ticket Footer & QR Validation -->
                 <div class="ticket-footer">
                     <div class="ticket-qr-section">
-                        <div id="ticket-qrcode" style="background:#fff;padding:6px;border-radius:10px;border:1px solid #e2e8f0;display:inline-flex;align-items:center;justify-content:center;min-width:132px;min-height:132px;"></div>
+                        <div id="ticket-qrcode" style="background:#fff;padding:8px;border-radius:10px;border:1px solid #e2e8f0;display:inline-flex;align-items:center;justify-content:center;min-width:144px;min-height:144px;box-shadow:0 2px 8px rgba(0,0,0,0.04);"></div>
                         <div class="qr-desc">
                             <span class="qr-title">SCAN TO VERIFY</span>
                             <small>Present this real QR code to the bus conductor at boarding gate.</small>
@@ -490,49 +491,15 @@ function viewETicket(bookingId) {
     document.getElementById('t-amount').textContent = `Rs. ${Number(booking.totalAmount || 0).toLocaleString()}`;
     document.getElementById('t-booking-date').textContent = bookDate.toLocaleDateString('en-LK', { day: 'numeric', month: 'short', year: 'numeric' });
 
-    // Generate Real QR code with complete verification details
-    const bookingRef = `#GB-BKG-${String(booking.id).padStart(5, '0')}`;
-    const qrRealText = [
-        `========================================`,
-        `   🚌 GOBUS SRI LANKA - BOARDING PASS`,
-        `========================================`,
-        `Ticket Ref   : ${bookingRef}`,
-        `Passenger    : ${booking.passengerName || user.fullName || user.username || 'Passenger'}`,
-        `NIC / ID     : ${booking.passengerNic || 'N/A'}`,
-        `Route        : ${(booking.source || 'COLOMBO').toUpperCase()} ➔ ${(booking.destination || 'KANDY').toUpperCase()}`,
-        `Coach / Bus  : ${booking.busName || 'GoBus Express'} (${booking.busNumber || 'ND-8821'})`,
-        `Departure    : ${depDate.toLocaleDateString('en-LK', { day:'numeric', month:'short', year:'numeric' })}, ${depDate.toLocaleTimeString('en-LK', { hour:'2-digit', minute:'2-digit' })}`,
-        `Arrival      : ${arrDate.toLocaleDateString('en-LK', { day:'numeric', month:'short', year:'numeric' })}, ${arrDate.toLocaleTimeString('en-LK', { hour:'2-digit', minute:'2-digit' })}`,
-        `Seat(s)      : ${(booking.seatNumbers || []).map(s => 'Seat ' + s).join(', ') || 'Assigned'}`,
-        `Total Fare   : Rs. ${Number(booking.totalAmount || 0).toLocaleString()} (PAID)`,
-        `Status       : VERIFIED & CONFIRMED`,
-        `Verify Online: ${window.location.origin}/booking-confirmation.html?ref=${encodeURIComponent(bookingRef)}`,
-        `========================================`
-    ].join('\n');
-
-    const qrContainer = document.getElementById('ticket-qrcode') || document.getElementById('t-qr-container');
-    if (qrContainer) {
-        qrContainer.innerHTML = '';
-        const seatStr = (booking.seatNumbers && booking.seatNumbers.length > 0)
-            ? booking.seatNumbers.join(', ')
-            : (booking.seatNumber || 'Assigned');
-
-        if (typeof QRCode !== 'undefined') {
-            new QRCode(qrContainer, {
-                text: JSON.stringify({
-                    bookingId: booking.id,
-                    bookingReference: bookingRef,
-                    passenger: booking.passengerName || (user ? user.fullName : 'Passenger'),
-                    seatNumber: seatStr
-                }),
-                width: 128,
-                height: 128,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-        }
+    // Generate Real Dynamic QR code with complete verification details
+    if (typeof renderRealTicketQR === 'function') {
+        renderRealTicketQR(booking);
+    } else if (typeof window.renderRealTicketQR === 'function') {
+        window.renderRealTicketQR(booking);
+    } else {
+        renderLocalRealTicketQR(booking);
     }
+
     document.getElementById('t-barcode-str').textContent = `GB-${String(booking.id).padStart(4, '0')}-${booking.passengerNic ? booking.passengerNic.slice(-4) : '2026'}`;
 
     const modal = document.getElementById('ticket-modal');
@@ -542,6 +509,34 @@ function viewETicket(bookingId) {
 
 function closeETicketModal() {
     document.getElementById('ticket-modal').style.display = 'none';
+}
+
+function renderLocalRealTicketQR(bookingData) {
+    const qrContainer = document.getElementById("ticket-qrcode");
+    if (!qrContainer) return;
+    qrContainer.innerHTML = "";
+    const seatsArray = Array.isArray(bookingData.seatNumbers) 
+        ? bookingData.seatNumbers 
+        : (bookingData.seatNumbers ? [bookingData.seatNumbers] : (bookingData.seatNumber ? [bookingData.seatNumber] : []));
+    const bookingRef = bookingData.bookingReference || (bookingData.id ? `GB-${String(bookingData.id).padStart(5, '0')}` : 'GB-TICKET');
+    const verificationPayload = JSON.stringify({
+        ref: bookingRef,
+        bookingId: bookingData.id,
+        scheduleId: bookingData.scheduleId,
+        seats: seatsArray,
+        passenger: bookingData.passengerName || 'Passenger',
+        status: bookingData.status || "CONFIRMED"
+    });
+    if (typeof QRCode !== 'undefined') {
+        new QRCode(qrContainer, {
+            text: verificationPayload,
+            width: 140,
+            height: 140,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    }
 }
 
 function printETicket() {
