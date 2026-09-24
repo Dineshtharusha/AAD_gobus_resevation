@@ -1,0 +1,1954 @@
+2026-09-20 19:46:16 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2026-09-20 19:46:16 [main] INFO  B.ijse.IjseApplication - Starting IjseApplication using Java 21.0.11 with PID 12320 (C:\Users\Dinesh\Downloads\ijse\ijse\target\classes started by Dinesh in C:\Users\Dinesh\Downloads\ijse\ijse)
+2026-09-20 19:46:16 [main] DEBUG B.ijse.IjseApplication - Running with Spring Boot v3.3.5, Spring v6.1.14
+2026-09-20 19:46:16 [main] INFO  B.ijse.IjseApplication - No active profile set, falling back to 1 default profile: "default"
+2026-09-20 19:46:17 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-09-20 19:46:17 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 172 ms. Found 17 JPA repository interfaces.
+2026-09-20 19:46:19 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-09-20 19:46:19 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-09-20 19:46:19 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-09-20 19:46:19 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-09-20 19:46:19 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-09-20 19:46:19 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2891 ms
+2026-09-20 19:46:19 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-09-20 19:46:19 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.3.Final
+2026-09-20 19:46:19 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-09-20 19:46:20 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-09-20 19:46:20 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-09-20 19:46:20 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@2dd2ff87
+2026-09-20 19:46:20 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-09-20 19:46:21 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-09-20 19:46:23 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-09-20 19:46:23 [main] DEBUG org.hibernate.SQL - 
+    alter table bookings 
+       modify column status enum ('CANCELLED','COMPLETED','CONFIRMED','NO_SHOW','PENDING') not null
+2026-09-20 19:46:23 [main] DEBUG org.hibernate.SQL - 
+    alter table bus_seats 
+       modify column seat_type enum ('AISLE','LOWER_BERTH','MIDDLE','UPPER_BERTH','WINDOW') not null
+2026-09-20 19:46:23 [main] DEBUG org.hibernate.SQL - 
+    alter table buses 
+       modify column bus_type enum ('AC_SEATER','AC_SLEEPER','LUXURY','MINI','NON_AC_SEATER','NON_AC_SLEEPER') not null
+2026-09-20 19:46:23 [main] DEBUG org.hibernate.SQL - 
+    alter table buses 
+       add column owner_id bigint
+2026-09-20 19:46:23 [main] DEBUG org.hibernate.SQL - 
+    alter table cancellations 
+       modify column status enum ('APPROVED','REFUND_COMPLETED','REFUND_INITIATED','REJECTED','REQUESTED') not null
+2026-09-20 19:46:23 [main] DEBUG org.hibernate.SQL - 
+    alter table notifications 
+       modify column type enum ('BOOKING_CANCELLED','BOOKING_CONFIRMED','GENERAL','PAYMENT_FAILED','PAYMENT_SUCCESS','REFUND_INITIATED','SCHEDULE_CHANGE') not null
+2026-09-20 19:46:23 [main] DEBUG org.hibernate.SQL - 
+    alter table payments 
+       modify column method enum ('CASH','CREDIT_CARD','DEBIT_CARD','NET_BANKING','UPI','WALLET') not null
+2026-09-20 19:46:23 [main] DEBUG org.hibernate.SQL - 
+    alter table payments 
+       modify column status enum ('FAILED','PARTIALLY_REFUNDED','PENDING','REFUNDED','SUCCESS') not null
+2026-09-20 19:46:23 [main] DEBUG org.hibernate.SQL - 
+    alter table roles 
+       modify column name enum ('ROLE_ADMIN','ROLE_BUS_OWNER','ROLE_GUEST','ROLE_USER') not null
+2026-09-20 19:46:23 [main] DEBUG org.hibernate.SQL - 
+    create table verification_tokens (
+        id bigint not null auto_increment,
+        created_at datetime(6) not null,
+        expiry_date datetime(6) not null,
+        token varchar(10) not null,
+        type enum ('EMAIL_VERIFICATION','PASSWORD_RESET') not null,
+        used bit not null,
+        user_id bigint not null,
+        primary key (id)
+    ) engine=InnoDB
+2026-09-20 19:46:24 [main] DEBUG org.hibernate.SQL - 
+    create index idx_token_type 
+       on verification_tokens (token, type)
+2026-09-20 19:46:24 [main] DEBUG org.hibernate.SQL - 
+    create index idx_user_type 
+       on verification_tokens (user_id, type)
+2026-09-20 19:46:24 [main] DEBUG org.hibernate.SQL - 
+    alter table buses 
+       add constraint FKpabr8hjnvpgdcxjci856o256b 
+       foreign key (owner_id) 
+       references users (id)
+2026-09-20 19:46:24 [main] DEBUG org.hibernate.SQL - 
+    alter table verification_tokens 
+       add constraint FK54y8mqsnq1rtyf581sfmrbp4f 
+       foreign key (user_id) 
+       references users (id)
+2026-09-20 19:46:24 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-09-20 19:46:25 [main] DEBUG B.i.security.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
+2026-09-20 19:46:25 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-09-20 19:46:27 [main] INFO  o.s.s.c.a.a.c.InitializeAuthenticationProviderBeanManagerConfigurer$InitializeAuthenticationProviderManagerConfigurer - Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
+2026-09-20 19:46:27 [main] WARN  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used for username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider.
+2026-09-20 19:46:28 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+2026-09-20 19:46:29 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-09-20 19:46:29 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-09-20 19:46:29 [main] INFO  B.ijse.IjseApplication - Started IjseApplication in 14.41 seconds (process running for 15.109)
+2026-09-20 19:46:29 [main] INFO  B.ijse.DataInitializer - === GoBus API – Data Initialization ===
+2026-09-20 19:46:29 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    insert 
+    into
+        roles
+        (name) 
+    values
+        (?)
+2026-09-20 19:46:30 [main] INFO  B.ijse.DataInitializer - Created role: ROLE_BUS_OWNER
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.username=? 
+    limit
+        ?
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.username=?
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.username=? 
+    limit
+        ?
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.username=?
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.username=? 
+    limit
+        ?
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    insert 
+    into
+        users
+        (email, enabled, full_name, password, phone, username) 
+    values
+        (?, ?, ?, ?, ?, ?)
+2026-09-20 19:46:30 [main] INFO  B.ijse.DataInitializer - Bus Owner user created  → busowner / Owner@1234
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        upper(r1_0.source)=upper(?) 
+        and upper(r1_0.destination)=upper(?)
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        upper(r1_0.source)=upper(?) 
+        and upper(r1_0.destination)=upper(?)
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        upper(r1_0.source)=upper(?) 
+        and upper(r1_0.destination)=upper(?)
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        upper(r1_0.source)=upper(?) 
+        and upper(r1_0.destination)=upper(?)
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        upper(r1_0.source)=upper(?) 
+        and upper(r1_0.destination)=upper(?)
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        upper(r1_0.source)=upper(?) 
+        and upper(r1_0.destination)=upper(?)
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        upper(r1_0.source)=upper(?) 
+        and upper(r1_0.destination)=upper(?)
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        upper(r1_0.source)=upper(?) 
+        and upper(r1_0.destination)=upper(?)
+2026-09-20 19:46:30 [main] INFO  B.ijse.DataInitializer - Ensured 8 routes exist
+2026-09-20 19:46:30 [main] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.is_active,
+        b1_0.bus_name,
+        b1_0.bus_number,
+        b1_0.bus_type,
+        b1_0.owner_id,
+        b1_0.total_seats 
+    from
+        buses b1_0 
+    where
+        b1_0.bus_number=?
+2026-09-20 19:46:31 [main] DEBUG org.hibernate.SQL - 
+    update
+        buses 
+    set
+        is_active=?,
+        bus_name=?,
+        bus_number=?,
+        bus_type=?,
+        owner_id=?,
+        total_seats=? 
+    where
+        id=?
+2026-09-20 19:46:31 [main] DEBUG org.hibernate.SQL - 
+    insert 
+    into
+        user_roles
+        (user_id, role_id) 
+    values
+        (?, ?)
+2026-09-20 19:46:31 [main] DEBUG org.hibernate.SQL - 
+    insert 
+    into
+        user_roles
+        (user_id, role_id) 
+    values
+        (?, ?)
+2026-09-20 19:46:31 [main] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.is_active,
+        b1_0.bus_name,
+        b1_0.bus_number,
+        b1_0.bus_type,
+        b1_0.owner_id,
+        b1_0.total_seats 
+    from
+        buses b1_0 
+    where
+        b1_0.bus_number=?
+2026-09-20 19:46:31 [main] DEBUG org.hibernate.SQL - 
+    update
+        buses 
+    set
+        is_active=?,
+        bus_name=?,
+        bus_number=?,
+        bus_type=?,
+        owner_id=?,
+        total_seats=? 
+    where
+        id=?
+2026-09-20 19:46:31 [main] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.is_active,
+        b1_0.bus_name,
+        b1_0.bus_number,
+        b1_0.bus_type,
+        b1_0.owner_id,
+        b1_0.total_seats 
+    from
+        buses b1_0 
+    where
+        b1_0.bus_number=?
+2026-09-20 19:46:31 [main] DEBUG org.hibernate.SQL - 
+    update
+        buses 
+    set
+        is_active=?,
+        bus_name=?,
+        bus_number=?,
+        bus_type=?,
+        owner_id=?,
+        total_seats=? 
+    where
+        id=?
+2026-09-20 19:46:31 [main] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.is_active,
+        b1_0.bus_name,
+        b1_0.bus_number,
+        b1_0.bus_type,
+        b1_0.owner_id,
+        b1_0.total_seats 
+    from
+        buses b1_0 
+    where
+        b1_0.bus_number=?
+2026-09-20 19:46:31 [main] DEBUG org.hibernate.SQL - 
+    update
+        buses 
+    set
+        is_active=?,
+        bus_name=?,
+        bus_number=?,
+        bus_type=?,
+        owner_id=?,
+        total_seats=? 
+    where
+        id=?
+2026-09-20 19:46:31 [main] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.is_active,
+        b1_0.bus_name,
+        b1_0.bus_number,
+        b1_0.bus_type,
+        b1_0.owner_id,
+        b1_0.total_seats 
+    from
+        buses b1_0 
+    where
+        b1_0.bus_number=?
+2026-09-20 19:46:31 [main] INFO  B.ijse.DataInitializer - Ensured 5 buses with seats and operator assignment exist
+2026-09-20 19:46:31 [main] DEBUG org.hibernate.SQL - 
+    select
+        count(*) 
+    from
+        schedules s1_0
+2026-09-20 19:46:31 [main] DEBUG org.hibernate.SQL - 
+    select
+        s1_0.id,
+        s1_0.active,
+        s1_0.arrival_time,
+        s1_0.available_seats,
+        s1_0.bus_id,
+        s1_0.departure_time,
+        s1_0.fare,
+        s1_0.route_id 
+    from
+        schedules s1_0 
+    where
+        s1_0.active=1 
+        and s1_0.available_seats>0 
+    order by
+        s1_0.departure_time
+2026-09-20 19:46:31 [main] DEBUG org.hibernate.SQL - 
+    select
+        count(*) 
+    from
+        bookings b1_0
+2026-09-20 19:46:31 [main] INFO  B.ijse.DataInitializer - === Data Initialization Complete ===
+2026-09-20 19:46:31 [main] DEBUG org.hibernate.SQL - 
+    update
+        buses 
+    set
+        is_active=?,
+        bus_name=?,
+        bus_number=?,
+        bus_type=?,
+        owner_id=?,
+        total_seats=? 
+    where
+        id=?
+2026-09-20 19:46:54 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-20 19:46:54 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-09-20 19:46:54 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-09-20 19:46:54 [http-nio-8080-exec-1] INFO  B.ijse.Controller.AuthController - Login request for: busowner
+2026-09-20 19:46:54 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.username=?
+2026-09-20 19:46:54 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-20 19:46:54 [http-nio-8080-exec-1] DEBUG B.i.security.UserDetailsServiceImpl - Loaded user: busowner with roles: [Bus_Ticket_booking.ijse.entity.Role@40, Bus_Ticket_booking.ijse.entity.Role@42]
+2026-09-20 19:46:55 [http-nio-8080-exec-1] INFO  B.i.S.Serviceimpl.AuthServiceImpl - User logged in: busowner
+2026-09-20 19:47:04 [http-nio-8080-exec-4] INFO  B.ijse.Controller.AuthController - Login request for: busowner
+2026-09-20 19:47:04 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.username=?
+2026-09-20 19:47:04 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-20 19:47:04 [http-nio-8080-exec-4] DEBUG B.i.security.UserDetailsServiceImpl - Loaded user: busowner with roles: [Bus_Ticket_booking.ijse.entity.Role@40, Bus_Ticket_booking.ijse.entity.Role@42]
+2026-09-20 19:47:05 [http-nio-8080-exec-4] INFO  B.i.S.Serviceimpl.AuthServiceImpl - User logged in: busowner
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.username=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG B.i.security.UserDetailsServiceImpl - Loaded user: busowner with roles: [Bus_Ticket_booking.ijse.entity.Role@40, Bus_Ticket_booking.ijse.entity.Role@42]
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG B.i.security.JwtAuthenticationFilter - Authenticated user: busowner, URI: /api/v1/bookings/owner/passengers
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.username=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.booking_date,
+        b1_0.passenger_id,
+        b1_0.schedule_id,
+        b1_0.status,
+        b1_0.total_amount,
+        b1_0.user_id 
+    from
+        bookings b1_0 
+    left join
+        schedules s1_0 
+            on s1_0.id=b1_0.schedule_id 
+    left join
+        buses b2_0 
+            on b2_0.id=s1_0.bus_id 
+    left join
+        users o1_0 
+            on o1_0.id=b2_0.owner_id 
+    where
+        o1_0.username=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        c1_0.id,
+        c1_0.booking_id,
+        c1_0.cancellation_date,
+        c1_0.reason,
+        c1_0.refund_amount,
+        c1_0.status 
+    from
+        cancellations c1_0 
+    where
+        c1_0.booking_id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.amount,
+        p1_0.booking_id,
+        p1_0.method,
+        p1_0.payment_date,
+        p1_0.status,
+        p1_0.transaction_id 
+    from
+        payments p1_0 
+    where
+        p1_0.booking_id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        c1_0.id,
+        c1_0.booking_id,
+        c1_0.cancellation_date,
+        c1_0.reason,
+        c1_0.refund_amount,
+        c1_0.status 
+    from
+        cancellations c1_0 
+    where
+        c1_0.booking_id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.amount,
+        p1_0.booking_id,
+        p1_0.method,
+        p1_0.payment_date,
+        p1_0.status,
+        p1_0.transaction_id 
+    from
+        payments p1_0 
+    where
+        p1_0.booking_id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        bs1_0.id,
+        bs1_0.booking_id,
+        bs1_0.bus_seat_id 
+    from
+        booking_seats bs1_0 
+    where
+        bs1_0.booking_id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        bs1_0.id,
+        bs1_0.is_available,
+        bs1_0.bus_id,
+        bs1_0.seat_number,
+        bs1_0.seat_type 
+    from
+        bus_seats bs1_0 
+    where
+        bs1_0.id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.username 
+    from
+        users u1_0 
+    left join
+        user_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        u1_0.id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        s1_0.id,
+        s1_0.active,
+        s1_0.arrival_time,
+        s1_0.available_seats,
+        s1_0.bus_id,
+        s1_0.departure_time,
+        s1_0.fare,
+        s1_0.route_id 
+    from
+        schedules s1_0 
+    where
+        s1_0.id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        r1_0.id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.is_active,
+        b1_0.bus_name,
+        b1_0.bus_number,
+        b1_0.bus_type,
+        b1_0.owner_id,
+        b1_0.total_seats 
+    from
+        buses b1_0 
+    where
+        b1_0.id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.age,
+        p1_0.first_name,
+        p1_0.gender,
+        p1_0.last_name,
+        p1_0.nic,
+        p1_0.phone 
+    from
+        passengers p1_0 
+    where
+        p1_0.id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.booking_date,
+        b1_0.passenger_id,
+        b1_0.schedule_id,
+        b1_0.status,
+        b1_0.total_amount,
+        b1_0.user_id 
+    from
+        bookings b1_0 
+    where
+        b1_0.passenger_id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        bs1_0.id,
+        bs1_0.booking_id,
+        bs1_0.bus_seat_id 
+    from
+        booking_seats bs1_0 
+    where
+        bs1_0.booking_id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        bs1_0.id,
+        bs1_0.is_available,
+        bs1_0.bus_id,
+        bs1_0.seat_number,
+        bs1_0.seat_type 
+    from
+        bus_seats bs1_0 
+    where
+        bs1_0.id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        s1_0.id,
+        s1_0.active,
+        s1_0.arrival_time,
+        s1_0.available_seats,
+        s1_0.bus_id,
+        s1_0.departure_time,
+        s1_0.fare,
+        s1_0.route_id 
+    from
+        schedules s1_0 
+    where
+        s1_0.id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        r1_0.id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.is_active,
+        b1_0.bus_name,
+        b1_0.bus_number,
+        b1_0.bus_type,
+        b1_0.owner_id,
+        b1_0.total_seats 
+    from
+        buses b1_0 
+    where
+        b1_0.id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.age,
+        p1_0.first_name,
+        p1_0.gender,
+        p1_0.last_name,
+        p1_0.nic,
+        p1_0.phone 
+    from
+        passengers p1_0 
+    where
+        p1_0.id=?
+2026-09-20 19:47:05 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.booking_date,
+        b1_0.passenger_id,
+        b1_0.schedule_id,
+        b1_0.status,
+        b1_0.total_amount,
+        b1_0.user_id 
+    from
+        bookings b1_0 
+    where
+        b1_0.passenger_id=?
+2026-09-20 19:48:01 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2026-09-20 19:48:01 [main] INFO  B.ijse.IjseApplication - Starting IjseApplication using Java 21.0.11 with PID 2112 (C:\Users\Dinesh\Downloads\ijse\ijse\target\classes started by Dinesh in C:\Users\Dinesh\Downloads\ijse\ijse)
+2026-09-20 19:48:01 [main] DEBUG B.ijse.IjseApplication - Running with Spring Boot v3.3.5, Spring v6.1.14
+2026-09-20 19:48:01 [main] INFO  B.ijse.IjseApplication - No active profile set, falling back to 1 default profile: "default"
+2026-09-20 19:48:03 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-09-20 19:48:04 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 351 ms. Found 17 JPA repository interfaces.
+2026-09-20 19:48:05 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-09-20 19:48:05 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-09-20 19:48:05 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-09-20 19:48:05 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-09-20 19:48:05 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-09-20 19:48:05 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3817 ms
+2026-09-20 19:48:05 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-09-20 19:48:05 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.3.Final
+2026-09-20 19:48:06 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-09-20 19:48:06 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-09-20 19:48:06 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-09-20 19:48:07 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@674e4c82
+2026-09-20 19:48:07 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-09-20 19:48:07 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-09-20 19:48:10 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-09-20 19:48:10 [main] DEBUG org.hibernate.SQL - 
+    alter table bookings 
+       modify column status enum ('CANCELLED','COMPLETED','CONFIRMED','NO_SHOW','PENDING') not null
+2026-09-20 19:48:10 [main] DEBUG org.hibernate.SQL - 
+    alter table bus_seats 
+       modify column seat_type enum ('AISLE','LOWER_BERTH','MIDDLE','UPPER_BERTH','WINDOW') not null
+2026-09-20 19:48:10 [main] DEBUG org.hibernate.SQL - 
+    alter table buses 
+       modify column bus_type enum ('AC_SEATER','AC_SLEEPER','LUXURY','MINI','NON_AC_SEATER','NON_AC_SLEEPER') not null
+2026-09-20 19:48:10 [main] DEBUG org.hibernate.SQL - 
+    alter table cancellations 
+       modify column status enum ('APPROVED','REFUND_COMPLETED','REFUND_INITIATED','REJECTED','REQUESTED') not null
+2026-09-20 19:48:10 [main] DEBUG org.hibernate.SQL - 
+    alter table notifications 
+       modify column type enum ('BOOKING_CANCELLED','BOOKING_CONFIRMED','GENERAL','PAYMENT_FAILED','PAYMENT_SUCCESS','REFUND_INITIATED','SCHEDULE_CHANGE') not null
+2026-09-20 19:48:10 [main] DEBUG org.hibernate.SQL - 
+    alter table payments 
+       modify column method enum ('CASH','CREDIT_CARD','DEBIT_CARD','NET_BANKING','UPI','WALLET') not null
+2026-09-20 19:48:10 [main] DEBUG org.hibernate.SQL - 
+    alter table payments 
+       modify column status enum ('FAILED','PARTIALLY_REFUNDED','PENDING','REFUNDED','SUCCESS') not null
+2026-09-20 19:48:10 [main] DEBUG org.hibernate.SQL - 
+    alter table roles 
+       modify column name enum ('ROLE_ADMIN','ROLE_BUS_OWNER','ROLE_GUEST','ROLE_USER') not null
+2026-09-20 19:48:10 [main] DEBUG org.hibernate.SQL - 
+    alter table verification_tokens 
+       modify column type enum ('EMAIL_VERIFICATION','PASSWORD_RESET') not null
+2026-09-20 19:48:11 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-09-20 19:48:12 [main] DEBUG B.i.security.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
+2026-09-20 19:48:12 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-09-20 19:48:13 [main] INFO  o.s.s.c.a.a.c.InitializeAuthenticationProviderBeanManagerConfigurer$InitializeAuthenticationProviderManagerConfigurer - Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
+2026-09-20 19:48:13 [main] WARN  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used for username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider.
+2026-09-20 19:48:14 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+2026-09-20 19:48:15 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-09-20 19:48:15 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-09-20 19:48:15 [main] INFO  B.ijse.IjseApplication - Started IjseApplication in 15.186 seconds (process running for 15.845)
+2026-09-20 19:48:15 [main] INFO  B.ijse.DataInitializer - === GoBus API – Data Initialization ===
+2026-09-20 19:48:15 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-09-20 19:48:15 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-09-20 19:48:15 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-09-20 19:48:15 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-09-20 19:48:15 [main] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.username=? 
+    limit
+        ?
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.username=?
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.username=? 
+    limit
+        ?
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.username=?
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.username=? 
+    limit
+        ?
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.username=?
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        upper(r1_0.source)=upper(?) 
+        and upper(r1_0.destination)=upper(?)
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        upper(r1_0.source)=upper(?) 
+        and upper(r1_0.destination)=upper(?)
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        upper(r1_0.source)=upper(?) 
+        and upper(r1_0.destination)=upper(?)
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        upper(r1_0.source)=upper(?) 
+        and upper(r1_0.destination)=upper(?)
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        upper(r1_0.source)=upper(?) 
+        and upper(r1_0.destination)=upper(?)
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        upper(r1_0.source)=upper(?) 
+        and upper(r1_0.destination)=upper(?)
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        upper(r1_0.source)=upper(?) 
+        and upper(r1_0.destination)=upper(?)
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        upper(r1_0.source)=upper(?) 
+        and upper(r1_0.destination)=upper(?)
+2026-09-20 19:48:16 [main] INFO  B.ijse.DataInitializer - Ensured 8 routes exist
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.is_active,
+        b1_0.bus_name,
+        b1_0.bus_number,
+        b1_0.bus_type,
+        b1_0.owner_id,
+        b1_0.total_seats 
+    from
+        buses b1_0 
+    where
+        b1_0.bus_number=?
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.is_active,
+        b1_0.bus_name,
+        b1_0.bus_number,
+        b1_0.bus_type,
+        b1_0.owner_id,
+        b1_0.total_seats 
+    from
+        buses b1_0 
+    where
+        b1_0.bus_number=?
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.is_active,
+        b1_0.bus_name,
+        b1_0.bus_number,
+        b1_0.bus_type,
+        b1_0.owner_id,
+        b1_0.total_seats 
+    from
+        buses b1_0 
+    where
+        b1_0.bus_number=?
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.is_active,
+        b1_0.bus_name,
+        b1_0.bus_number,
+        b1_0.bus_type,
+        b1_0.owner_id,
+        b1_0.total_seats 
+    from
+        buses b1_0 
+    where
+        b1_0.bus_number=?
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.is_active,
+        b1_0.bus_name,
+        b1_0.bus_number,
+        b1_0.bus_type,
+        b1_0.owner_id,
+        b1_0.total_seats 
+    from
+        buses b1_0 
+    where
+        b1_0.bus_number=?
+2026-09-20 19:48:16 [main] INFO  B.ijse.DataInitializer - Ensured 5 buses with seats and operator assignment exist
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        count(*) 
+    from
+        schedules s1_0
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        s1_0.id,
+        s1_0.active,
+        s1_0.arrival_time,
+        s1_0.available_seats,
+        s1_0.bus_id,
+        s1_0.departure_time,
+        s1_0.fare,
+        s1_0.route_id 
+    from
+        schedules s1_0 
+    where
+        s1_0.active=1 
+        and s1_0.available_seats>0 
+    order by
+        s1_0.departure_time
+2026-09-20 19:48:16 [main] DEBUG org.hibernate.SQL - 
+    select
+        count(*) 
+    from
+        bookings b1_0
+2026-09-20 19:48:16 [main] INFO  B.ijse.DataInitializer - === Data Initialization Complete ===
+2026-09-20 19:48:27 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-20 19:48:27 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-09-20 19:48:27 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2026-09-20 19:48:57 [http-nio-8080-exec-7] INFO  B.ijse.Controller.AuthController - Login request for: busowner
+2026-09-20 19:48:57 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.username=?
+2026-09-20 19:48:57 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-20 19:48:57 [http-nio-8080-exec-7] DEBUG B.i.security.UserDetailsServiceImpl - Loaded user: busowner with roles: [Bus_Ticket_booking.ijse.entity.Role@40, Bus_Ticket_booking.ijse.entity.Role@42]
+2026-09-20 19:48:58 [http-nio-8080-exec-7] INFO  B.i.S.Serviceimpl.AuthServiceImpl - User logged in: busowner
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.username=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG B.i.security.UserDetailsServiceImpl - Loaded user: busowner with roles: [Bus_Ticket_booking.ijse.entity.Role@40, Bus_Ticket_booking.ijse.entity.Role@42]
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG B.i.security.JwtAuthenticationFilter - Authenticated user: busowner, URI: /api/v1/bookings/owner/passengers
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.username=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.booking_date,
+        b1_0.passenger_id,
+        b1_0.schedule_id,
+        b1_0.status,
+        b1_0.total_amount,
+        b1_0.user_id 
+    from
+        bookings b1_0 
+    left join
+        schedules s1_0 
+            on s1_0.id=b1_0.schedule_id 
+    left join
+        buses b2_0 
+            on b2_0.id=s1_0.bus_id 
+    left join
+        users o1_0 
+            on o1_0.id=b2_0.owner_id 
+    where
+        o1_0.username=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        c1_0.id,
+        c1_0.booking_id,
+        c1_0.cancellation_date,
+        c1_0.reason,
+        c1_0.refund_amount,
+        c1_0.status 
+    from
+        cancellations c1_0 
+    where
+        c1_0.booking_id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.amount,
+        p1_0.booking_id,
+        p1_0.method,
+        p1_0.payment_date,
+        p1_0.status,
+        p1_0.transaction_id 
+    from
+        payments p1_0 
+    where
+        p1_0.booking_id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        c1_0.id,
+        c1_0.booking_id,
+        c1_0.cancellation_date,
+        c1_0.reason,
+        c1_0.refund_amount,
+        c1_0.status 
+    from
+        cancellations c1_0 
+    where
+        c1_0.booking_id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.amount,
+        p1_0.booking_id,
+        p1_0.method,
+        p1_0.payment_date,
+        p1_0.status,
+        p1_0.transaction_id 
+    from
+        payments p1_0 
+    where
+        p1_0.booking_id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        bs1_0.id,
+        bs1_0.booking_id,
+        bs1_0.bus_seat_id 
+    from
+        booking_seats bs1_0 
+    where
+        bs1_0.booking_id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        bs1_0.id,
+        bs1_0.is_available,
+        bs1_0.bus_id,
+        bs1_0.seat_number,
+        bs1_0.seat_type 
+    from
+        bus_seats bs1_0 
+    where
+        bs1_0.id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.username 
+    from
+        users u1_0 
+    left join
+        user_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        u1_0.id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        s1_0.id,
+        s1_0.active,
+        s1_0.arrival_time,
+        s1_0.available_seats,
+        s1_0.bus_id,
+        s1_0.departure_time,
+        s1_0.fare,
+        s1_0.route_id 
+    from
+        schedules s1_0 
+    where
+        s1_0.id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        r1_0.id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.is_active,
+        b1_0.bus_name,
+        b1_0.bus_number,
+        b1_0.bus_type,
+        b1_0.owner_id,
+        b1_0.total_seats 
+    from
+        buses b1_0 
+    where
+        b1_0.id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.age,
+        p1_0.first_name,
+        p1_0.gender,
+        p1_0.last_name,
+        p1_0.nic,
+        p1_0.phone 
+    from
+        passengers p1_0 
+    where
+        p1_0.id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.booking_date,
+        b1_0.passenger_id,
+        b1_0.schedule_id,
+        b1_0.status,
+        b1_0.total_amount,
+        b1_0.user_id 
+    from
+        bookings b1_0 
+    where
+        b1_0.passenger_id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        bs1_0.id,
+        bs1_0.booking_id,
+        bs1_0.bus_seat_id 
+    from
+        booking_seats bs1_0 
+    where
+        bs1_0.booking_id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        bs1_0.id,
+        bs1_0.is_available,
+        bs1_0.bus_id,
+        bs1_0.seat_number,
+        bs1_0.seat_type 
+    from
+        bus_seats bs1_0 
+    where
+        bs1_0.id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        s1_0.id,
+        s1_0.active,
+        s1_0.arrival_time,
+        s1_0.available_seats,
+        s1_0.bus_id,
+        s1_0.departure_time,
+        s1_0.fare,
+        s1_0.route_id 
+    from
+        schedules s1_0 
+    where
+        s1_0.id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.active,
+        r1_0.base_fare,
+        r1_0.destination,
+        r1_0.distance_km,
+        r1_0.duration_minutes,
+        r1_0.source 
+    from
+        routes r1_0 
+    where
+        r1_0.id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.is_active,
+        b1_0.bus_name,
+        b1_0.bus_number,
+        b1_0.bus_type,
+        b1_0.owner_id,
+        b1_0.total_seats 
+    from
+        buses b1_0 
+    where
+        b1_0.id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.age,
+        p1_0.first_name,
+        p1_0.gender,
+        p1_0.last_name,
+        p1_0.nic,
+        p1_0.phone 
+    from
+        passengers p1_0 
+    where
+        p1_0.id=?
+2026-09-20 19:48:58 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        b1_0.id,
+        b1_0.booking_date,
+        b1_0.passenger_id,
+        b1_0.schedule_id,
+        b1_0.status,
+        b1_0.total_amount,
+        b1_0.user_id 
+    from
+        bookings b1_0 
+    where
+        b1_0.passenger_id=?
+2026-09-20 19:49:05 [http-nio-8080-exec-10] INFO  B.ijse.Controller.AuthController - Forgot password request for: owner@gobus.lk
+2026-09-20 19:49:05 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2026-09-20 19:49:05 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-20 19:49:05 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        vt1_0.id,
+        vt1_0.created_at,
+        vt1_0.expiry_date,
+        vt1_0.token,
+        vt1_0.type,
+        vt1_0.used,
+        vt1_0.user_id 
+    from
+        verification_tokens vt1_0 
+    where
+        vt1_0.user_id=? 
+        and vt1_0.type=? 
+        and not(vt1_0.used) 
+    order by
+        vt1_0.created_at desc 
+    limit
+        ?
+2026-09-20 19:49:06 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    insert 
+    into
+        verification_tokens
+        (created_at, expiry_date, token, type, used, user_id) 
+    values
+        (?, ?, ?, ?, ?, ?)
+2026-09-20 19:49:11 [http-nio-8080-exec-10] WARN  B.i.S.Serviceimpl.EmailServiceImpl - [EMAIL FALLBACK] Could not send Password Reset email to owner@gobus.lk via SMTP (MailAuthenticationException: Authentication failed).
+2026-09-20 19:49:11 [http-nio-8080-exec-10] INFO  B.i.S.Serviceimpl.EmailServiceImpl - ===============================================================
+2026-09-20 19:49:11 [http-nio-8080-exec-10] INFO  B.i.S.Serviceimpl.EmailServiceImpl - [DEV CONSOLE OTP] PASSWORD RESET code for owner@gobus.lk: >>> 185029 <<<
+2026-09-20 19:49:11 [http-nio-8080-exec-10] INFO  B.i.S.Serviceimpl.EmailServiceImpl - ===============================================================
+2026-09-20 19:49:11 [http-nio-8080-exec-10] INFO  B.i.S.Serviceimpl.AuthServiceImpl - Sent password reset code to: owner@gobus.lk
+2026-09-20 19:49:38 [http-nio-8080-exec-2] INFO  B.ijse.Controller.AuthController - Password reset submission for: owner@gobus.lk
+2026-09-20 19:49:38 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2026-09-20 19:49:38 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-20 19:49:38 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL - 
+    select
+        vt1_0.id,
+        vt1_0.created_at,
+        vt1_0.expiry_date,
+        vt1_0.token,
+        vt1_0.type,
+        vt1_0.used,
+        vt1_0.user_id 
+    from
+        verification_tokens vt1_0 
+    where
+        vt1_0.user_id=? 
+        and vt1_0.token=? 
+        and vt1_0.type=? 
+        and not(vt1_0.used) 
+    order by
+        vt1_0.created_at desc 
+    limit
+        ?
+2026-09-20 19:49:39 [http-nio-8080-exec-2] INFO  B.i.S.Serviceimpl.AuthServiceImpl - Password successfully reset for user: busowner
+2026-09-20 19:49:39 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL - 
+    update
+        users 
+    set
+        email=?,
+        enabled=?,
+        full_name=?,
+        password=?,
+        phone=?,
+        username=? 
+    where
+        id=?
+2026-09-20 19:49:39 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL - 
+    update
+        verification_tokens 
+    set
+        expiry_date=?,
+        token=?,
+        type=?,
+        used=?,
+        user_id=? 
+    where
+        id=?
+2026-09-20 19:49:53 [http-nio-8080-exec-4] INFO  B.ijse.Controller.AuthController - Login request for: busowner
+2026-09-20 19:49:53 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.username=?
+2026-09-20 19:49:53 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-20 19:49:53 [http-nio-8080-exec-4] DEBUG B.i.security.UserDetailsServiceImpl - Loaded user: busowner with roles: [Bus_Ticket_booking.ijse.entity.Role@40, Bus_Ticket_booking.ijse.entity.Role@42]
+2026-09-20 19:49:54 [http-nio-8080-exec-4] INFO  B.i.S.Serviceimpl.AuthServiceImpl - User logged in: busowner
+2026-09-20 19:50:02 [http-nio-8080-exec-6] INFO  B.ijse.Controller.AuthController - Forgot password request for: owner@gobus.lk
+2026-09-20 19:50:02 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2026-09-20 19:50:02 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-20 19:50:02 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL - 
+    select
+        vt1_0.id,
+        vt1_0.created_at,
+        vt1_0.expiry_date,
+        vt1_0.token,
+        vt1_0.type,
+        vt1_0.used,
+        vt1_0.user_id 
+    from
+        verification_tokens vt1_0 
+    where
+        vt1_0.user_id=? 
+        and vt1_0.type=? 
+        and not(vt1_0.used) 
+    order by
+        vt1_0.created_at desc 
+    limit
+        ?
+2026-09-20 19:50:02 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL - 
+    insert 
+    into
+        verification_tokens
+        (created_at, expiry_date, token, type, used, user_id) 
+    values
+        (?, ?, ?, ?, ?, ?)
+2026-09-20 19:50:07 [http-nio-8080-exec-6] WARN  B.i.S.Serviceimpl.EmailServiceImpl - [EMAIL FALLBACK] Could not send Password Reset email to owner@gobus.lk via SMTP (MailAuthenticationException: Authentication failed).
+2026-09-20 19:50:07 [http-nio-8080-exec-6] INFO  B.i.S.Serviceimpl.EmailServiceImpl - ===============================================================
+2026-09-20 19:50:07 [http-nio-8080-exec-6] INFO  B.i.S.Serviceimpl.EmailServiceImpl - [DEV CONSOLE OTP] PASSWORD RESET code for owner@gobus.lk: >>> 201567 <<<
+2026-09-20 19:50:07 [http-nio-8080-exec-6] INFO  B.i.S.Serviceimpl.EmailServiceImpl - ===============================================================
+2026-09-20 19:50:07 [http-nio-8080-exec-6] INFO  B.i.S.Serviceimpl.AuthServiceImpl - Sent password reset code to: owner@gobus.lk
+2026-09-20 19:50:08 [http-nio-8080-exec-7] INFO  B.ijse.Controller.AuthController - Login request for: busowner
+2026-09-20 19:50:08 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.username=?
+2026-09-20 19:50:08 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-20 19:50:08 [http-nio-8080-exec-7] DEBUG B.i.security.UserDetailsServiceImpl - Loaded user: busowner with roles: [Bus_Ticket_booking.ijse.entity.Role@40, Bus_Ticket_booking.ijse.entity.Role@42]
+2026-09-20 19:50:08 [http-nio-8080-exec-7] INFO  B.i.S.Serviceimpl.AuthServiceImpl - User logged in: busowner
+2026-09-20 19:50:56 [http-nio-8080-exec-9] INFO  B.ijse.Controller.AuthController - Password reset submission for: owner@gobus.lk
+2026-09-20 19:50:56 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2026-09-20 19:50:56 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-20 19:50:56 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL - 
+    select
+        vt1_0.id,
+        vt1_0.created_at,
+        vt1_0.expiry_date,
+        vt1_0.token,
+        vt1_0.type,
+        vt1_0.used,
+        vt1_0.user_id 
+    from
+        verification_tokens vt1_0 
+    where
+        vt1_0.user_id=? 
+        and vt1_0.token=? 
+        and vt1_0.type=? 
+        and not(vt1_0.used) 
+    order by
+        vt1_0.created_at desc 
+    limit
+        ?
+2026-09-20 19:50:57 [http-nio-8080-exec-9] INFO  B.i.S.Serviceimpl.AuthServiceImpl - Password successfully reset for user: busowner
+2026-09-20 19:50:57 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL - 
+    update
+        users 
+    set
+        email=?,
+        enabled=?,
+        full_name=?,
+        password=?,
+        phone=?,
+        username=? 
+    where
+        id=?
+2026-09-20 19:50:57 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL - 
+    update
+        verification_tokens 
+    set
+        expiry_date=?,
+        token=?,
+        type=?,
+        used=?,
+        user_id=? 
+    where
+        id=?
+2026-09-20 19:51:05 [http-nio-8080-exec-1] INFO  B.ijse.Controller.AuthController - Login request for: busowner
+2026-09-20 19:51:05 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.username=?
+2026-09-20 19:51:05 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name 
+    from
+        user_roles r1_0 
+    join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        r1_0.user_id=?
+2026-09-20 19:51:05 [http-nio-8080-exec-1] DEBUG B.i.security.UserDetailsServiceImpl - Loaded user: busowner with roles: [Bus_Ticket_booking.ijse.entity.Role@40, Bus_Ticket_booking.ijse.entity.Role@42]
+2026-09-20 19:51:06 [http-nio-8080-exec-1] INFO  B.i.S.Serviceimpl.AuthServiceImpl - User logged in: busowner
