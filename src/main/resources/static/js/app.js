@@ -5,21 +5,26 @@ var API_BASE = window.API_BASE;
 
 // -- Date field init ----------------------------------------------------------
 const dateInput = document.querySelector('#travel-date');
-const today = new Date();
-dateInput.min = today.toISOString().split('T')[0];
-dateInput.value = today.toISOString().split('T')[0];
+if (dateInput) {
+    const today = new Date();
+    dateInput.min = today.toISOString().split('T')[0];
+    dateInput.value = today.toISOString().split('T')[0];
+}
 
 if (window.lucide) lucide.createIcons();
 
 // -- City swap ----------------------------------------------------------------
 const fromCity = document.querySelector('#from-city');
 const toCity   = document.querySelector('#to-city');
+const swapCitiesBtn = document.querySelector('#swap-cities');
 
-document.querySelector('#swap-cities').addEventListener('click', () => {
-    const tmp  = fromCity.value;
-    fromCity.value = toCity.value;
-    toCity.value   = tmp;
-});
+if (swapCitiesBtn && fromCity && toCity) {
+    swapCitiesBtn.addEventListener('click', () => {
+        const tmp  = fromCity.value;
+        fromCity.value = toCity.value;
+        toCity.value   = tmp;
+    });
+}
 
 // -- Trip type tabs -----------------------------------------------------------
 document.querySelectorAll('.trip-tab').forEach(tab => {
@@ -49,6 +54,7 @@ const searchForm     = document.querySelector('#search-form');
 const resultsSection = document.querySelector('#results');
 const journeyList    = document.querySelector('.journey-list');
 
+if (searchForm && journeyList) {
 searchForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -122,6 +128,7 @@ searchForm.addEventListener('submit', async (e) => {
             </div>`;
     }
 });
+}
 
 function getBusDetails(s) {
     const name = (s.busName || '').toLowerCase();
@@ -242,8 +249,11 @@ window.addEventListener('gobus:languageChanged', () => {
 });
 
 // -- Edit search ---------------------------------------------------------------
-document.querySelector('#edit-search').addEventListener('click', () =>
-    document.querySelector('#search-card').scrollIntoView({ behavior: 'smooth' }));
+const editSearchBtn = document.querySelector('#edit-search');
+if (editSearchBtn) {
+    editSearchBtn.addEventListener('click', () =>
+        document.querySelector('#search-card')?.scrollIntoView({ behavior: 'smooth' }));
+}
 
 // -- Seat Modal ----------------------------------------------------------------
 const modal           = document.querySelector('#seat-modal');
@@ -330,13 +340,16 @@ function attachChooseBtnHandlers() {
 }
 
 function closeModal() {
-    modal.hidden = true;
+    if (modal) modal.hidden = true;
     document.body.style.overflow = '';
 }
 
-document.querySelector('#close-modal').addEventListener('click', closeModal);
-modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+document.querySelector('#close-modal')?.addEventListener('click', closeModal);
+if (modal) {
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+}
 
+if (continueButton) {
 continueButton.addEventListener('click', async () => {
     if (!selectedSeat || !activeSchedule) return;
 
@@ -354,6 +367,7 @@ continueButton.addEventListener('click', async () => {
 
     window.location.href = 'booking-confirmation.html';
 });
+}
 
 // CSS keyframe for spinner
 const style = document.createElement('style');
@@ -402,4 +416,64 @@ if (contactForm) {
         }, 600);
     });
 }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 3. Dynamic Ticket QR Code Rendering (සැබෑ Booking Data අඩංගු Real Dynamic QR)
+// ═══════════════════════════════════════════════════════════════════════════════
+// සැබෑ Booking Response එක ලැබුණු පසු ක්‍රියාත්මක වන Function එක
+function renderRealTicketQR(bookingData) {
+    if (!bookingData) {
+        console.warn("renderRealTicketQR: No bookingData provided.");
+        return;
+    }
+    const qrContainer = document.getElementById("ticket-qrcode");
+    if (!qrContainer) {
+        console.warn("renderRealTicketQR: Element #ticket-qrcode not found.");
+        return;
+    }
+    
+    // 1. කලින් තිබූ Dummy පින්තූර හෝ පරණ QR ඉවත් කිරීම
+    qrContainer.innerHTML = "";
+
+    // Normalize seats array & booking reference
+    const seatsArray = Array.isArray(bookingData.seatNumbers) 
+        ? bookingData.seatNumbers 
+        : (bookingData.seatNumbers ? [bookingData.seatNumbers] : (bookingData.seatNumber ? [bookingData.seatNumber] : []));
+    
+    const bookingRef = bookingData.bookingReference 
+        || (bookingData.id ? `GB-${String(bookingData.id).padStart(5, '0')}` : 'GB-TICKET');
+
+    // 2. ටිකට්පත සත්‍යාපනය කිරීමට අවශ්‍ය සැබෑ දත්ත JSON එකක් බවට පත් කිරීම
+    const verificationPayload = JSON.stringify({
+        ref: bookingRef,                        // උදා: "GB-9F2B8A1C"
+        bookingId: bookingData.id,              // Database ID එක
+        scheduleId: bookingData.scheduleId,
+        seats: seatsArray,                      // උදා: ["A1", "A2"]
+        passenger: bookingData.passengerName || 'Passenger',
+        status: bookingData.status || "CONFIRMED" // "CONFIRMED"
+    });
+
+    // Ensure container styling prevents clipping and provides high-contrast quiet zone
+    qrContainer.style.overflow = "visible";
+    qrContainer.style.background = "#ffffff";
+    qrContainer.style.padding = "8px";
+    qrContainer.style.borderRadius = "8px";
+
+    // 3. qrcode.min.js මගින් සැබෑ දත්ත ඇතුළත් Canvas QR Code එක ඇඳීම
+    if (typeof QRCode !== 'undefined') {
+        new QRCode(qrContainer, {
+            text: verificationPayload,              // සැබෑ දත්ත Payload එක
+            width: 140,
+            height: 140,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H     // High error correction (පැහැදිලිව Scan වීමට)
+        });
+    } else {
+        console.warn("QRCode library is not loaded. Ensure qrcode.min.js is included.");
+    }
+}
+
+// Global exposure
+window.renderRealTicketQR = renderRealTicketQR;
 
